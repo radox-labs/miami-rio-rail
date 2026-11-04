@@ -1,0 +1,395 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Radox Rail</title>
+<meta name="description" content="A container from Rio to Miami changes hands five times. Radox Rail gives it one shared record that every company confirms and anyone can check. Live on Stellar testnet.">
+<link rel="preload" href="fonts/inter-latin-700-normal.woff2" as="font" type="font/woff2" crossorigin>
+<style>
+  @font-face { font-family: 'Inter'; font-weight: 400; font-display: swap; src: url(fonts/inter-latin-400-normal.woff2) format("woff2"); }
+  @font-face { font-family: 'Inter'; font-weight: 600; font-display: swap; src: url(fonts/inter-latin-600-normal.woff2) format("woff2"); }
+  @font-face { font-family: 'Inter'; font-weight: 700; font-display: swap; src: url(fonts/inter-latin-700-normal.woff2) format("woff2"); }
+  :root {
+    --background: 220 10% 6%; --foreground: 220 7% 91%;
+    --card: 210 10% 8%; --muted: 216 10% 10%;
+    --muted-foreground: 219 7% 57%; --border: 216 14% 14%;
+    --primary: 76 86% 63%; --primary-foreground: 220 10% 6%; --ring: 76 86% 63%;
+    --radius: 0.625rem; --font-body: 'Inter', system-ui, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body { margin: 0; background: radial-gradient(ellipse at 70% 45%, hsl(216 10% 10%), hsl(var(--background)) 65%); color: hsl(var(--foreground)); font-family: var(--font-body); font-size: 18px; line-height: 1.5; font-variant-numeric: tabular-nums; }
+  a { color: hsl(var(--foreground)); text-decoration-color: hsl(var(--primary)); text-underline-offset: 3px; overflow-wrap: anywhere; }
+  a:focus-visible, button:focus-visible { outline: 2px solid hsl(var(--ring)); outline-offset: 3px; }
+  #stage { position: fixed; inset: 0; width: 100%; height: 100%; display: block; cursor: grab; touch-action: none; }
+  #stage:active { cursor: grabbing; }
+
+  header { position: fixed; top: 0; left: 0; right: 0; display: flex; justify-content: space-between; align-items: center; padding: 1.25rem 1.5rem; z-index: 5; pointer-events: none; background: linear-gradient(hsl(var(--background)) 30%, hsl(var(--background) / 0)); }
+  .brand { font-weight: 700; letter-spacing: -0.01em; font-size: 17px; }
+  .brand i { font-style: normal; color: hsl(var(--primary)); }
+  .label { border: 1px solid hsl(var(--border)); border-radius: var(--radius); padding: .2rem .7rem; font-size: 13px; color: hsl(var(--muted-foreground)); background: hsl(var(--background) / .6); }
+
+  /* chapter copy */
+  main { position: relative; z-index: 4; }
+  .ch { min-height: 100vh; min-height: 100svh; display: grid; grid-template-columns: minmax(0, 30rem) minmax(0, 1fr); gap: clamp(1.5rem, 5vw, 5rem); align-items: center; padding: 5rem clamp(1.5rem, 6vw, 6rem); }
+  .copy { max-width: 30rem; }
+  footer { position: relative; z-index: 4; padding: 2rem clamp(1.5rem, 6vw, 6rem) 3rem; font-size: 14px; color: hsl(var(--muted-foreground)); border-top: 1px solid hsl(var(--border)); background: hsl(var(--background)); }
+  h1, h2 { margin: 0 0 1rem; font-size: clamp(34px, 4.6vw, 64px); font-weight: 700; letter-spacing: -0.035em; line-height: 1.02; }
+  p { margin: 0 0 1rem; color: hsl(var(--muted-foreground)); font-size: clamp(17px, 1.5vw, 21px); }
+  .ch .w { display: inline-block; }
+
+
+  .plans { display: flex; gap: .6rem; margin-top: 1.25rem; flex-wrap: wrap; }
+  .plan { display: flex; align-items: center; gap: .6rem; padding: .7rem 1rem; border: 1px solid hsl(var(--border)); border-radius: var(--radius); background: hsl(var(--card) / .85); font-weight: 600; font-size: 16px; }
+  .plan svg { color: hsl(var(--primary)); }
+  .partners { display: flex; flex-wrap: wrap; align-items: center; gap: 1.25rem 2.5rem; margin: .25rem 0 1.5rem; }
+  .partners img, .built img { display: block; opacity: .72; }
+  .partners .zis { font: 900 34px/1 Inter, system-ui, sans-serif; letter-spacing: .02em; color: #fff; opacity: .72; }
+  .built { display: flex; align-items: center; gap: .55rem; margin: 1.5rem 0 0; font-size: 13px !important; letter-spacing: .02em; color: hsl(var(--muted-foreground)); }
+  .plus { align-self: center; color: hsl(var(--primary)); font-weight: 700; }
+
+  #dim { position: fixed; inset: 0; z-index: 2; background: hsl(var(--background) / .72); opacity: 0; pointer-events: none; }
+
+  /* labels projected from the globe */
+  #pins { position: fixed; inset: 0; z-index: 3; pointer-events: none; }
+  .pin { position: absolute; left: 0; top: 0; transform: translate(-50%, -140%); white-space: nowrap; font-size: 13px; font-weight: 600; padding: .2rem .55rem; border-radius: 999px; background: hsl(var(--card) / .9); border: 1px solid hsl(var(--border)); opacity: 0; transition: opacity .3s, border-color .3s; }
+  .pin .st { margin-left: .35rem; color: hsl(var(--muted-foreground)); font-weight: 700; }
+  .pin.lit { border-color: hsl(var(--primary)); pointer-events: auto; }
+  .pin.lit .st { color: hsl(var(--primary)); }
+  .pin a { text-decoration: none; font-weight: 400; color: hsl(var(--muted-foreground)); margin-left: .35rem; font-family: ui-monospace, monospace; font-size: 11px; }
+  .pin.tag { font-weight: 400; color: hsl(var(--muted-foreground)); }
+
+  /* verify */
+  .verifybox { margin-top: 1.25rem; padding: 1.25rem; border: 1px solid hsl(var(--border)); border-radius: var(--radius); background: hsl(var(--card) / .92); backdrop-filter: blur(6px); }
+  .source { display: block; font-size: 12px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: hsl(var(--muted-foreground)); margin-bottom: .6rem; }
+  .source.warn { color: hsl(var(--primary)); }
+  .note { font-size: 13px; margin: 0 0 .6rem; }
+  #status { font-size: 13px; margin: 0 0 .8rem; }
+  button { min-height: 48px; padding: 0 1.5rem; border: 0; border-radius: var(--radius); background: hsl(var(--primary)); color: hsl(var(--primary-foreground)); font: 600 18px var(--font-body); cursor: pointer; }
+  button:disabled { opacity: .5; cursor: wait; }
+  button:active { transform: scale(.97); }
+  @keyframes pulse { 70% { box-shadow: 0 0 0 14px hsl(var(--primary) / 0); } 100% { box-shadow: 0 0 0 0 hsl(var(--primary) / 0); } }
+  .result { margin: 1rem 0 0; color: hsl(var(--foreground)); font-size: 14px; }
+  .result strong { display: inline-block; padding: .15rem .7rem; border-radius: var(--radius); letter-spacing: .08em; font-size: 22px; margin-right: .4rem; }
+  .result.ok strong { background: hsl(var(--primary)); color: hsl(var(--primary-foreground)); }
+  .result.bad strong { border: 2px solid hsl(var(--foreground)); }
+  .result span { color: hsl(var(--muted-foreground)); }
+  .rows { border-top: 1px solid hsl(var(--border)); margin-top: 1rem; }
+  .row { display: flex; justify-content: space-between; gap: 1rem; padding: .6rem 0; border-bottom: 1px solid hsl(var(--border)); flex-wrap: wrap; font-size: 15px; }
+  .row span:first-child { color: hsl(var(--muted-foreground)); }
+  #history { list-style: none; margin: 1rem 0 0; padding: 0; border-top: 1px solid hsl(var(--border)); }
+  #history li { display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap; padding: .6rem 0; border-bottom: 1px solid hsl(var(--border)); font-size: 15px; }
+
+
+  /* illustrations (right side on desktop, top on phones) */
+  .art { width: 100%; max-width: 620px; justify-self: center; }
+  .globe-spot { height: 1px; }
+  .ico { display: inline-block; width: 1em; height: 1em; vertical-align: -0.15em; }
+  .ico svg { width: 100%; height: 100%; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  .strip { position: relative; height: 170px; }
+  .node { position: absolute; top: 0; width: 76px; margin-left: -38px; text-align: center; }
+  .node .disc { width: 64px; height: 64px; margin: 0 auto; border-radius: 50%; display: grid; place-items: center; background: hsl(var(--card)); border: 1.5px solid hsl(var(--border)); color: hsl(var(--foreground)); font-size: 28px; transition: border-color .3s, color .3s; }
+  .node.on .disc { border-color: hsl(var(--primary)); color: hsl(var(--primary)); }
+  .node b { display: block; margin-top: .45rem; font-size: 13px; font-weight: 600; }
+  .node .nb2 { display: block; margin-top: .3rem; font-size: 18px; color: #6B6F76; }
+  .gapmark { position: absolute; top: 18px; width: 40px; margin-left: -20px; text-align: center; font-size: 22px; color: #A8ABB0; opacity: 0; }
+  .gapmark.sign { color: hsl(var(--primary)); font-size: 24px; }
+  .gapmark .pens { display: flex; justify-content: center; gap: 2px; font-size: 15px; color: #A8ABB0; }
+  .cargo { position: absolute; top: -34px; margin-left: -15px; width: 30px; height: 30px; border-radius: 6px; display: grid; place-items: center; background: hsl(var(--primary)); color: hsl(var(--primary-foreground)); font-size: 18px; box-shadow: 0 0 24px hsl(var(--primary) / .5); }
+  .cargo::after { content: "Coffee"; position: absolute; top: -20px; left: 50%; transform: translateX(-50%); font-size: 11px; font-weight: 600; color: hsl(var(--primary)); white-space: nowrap; }
+  .ledger { margin: .4rem auto 0; width: min(100%, 420px); border: 1px solid hsl(var(--border)); border-radius: var(--radius); background: hsl(var(--card) / .9); padding: .8rem 1rem; }
+  .ledger .lh { font-size: 12px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: hsl(var(--primary)); display: flex; gap: .4rem; align-items: center; }
+  .ledger ol { list-style: none; margin: .5rem 0 0; padding: 0; min-height: 6.4rem; }
+  .ledger li { display: flex; justify-content: space-between; gap: .6rem; font-size: 13.5px; padding: .3rem 0; border-top: 1px solid hsl(var(--border)); opacity: 0; }
+  .ledger li span:last-child { color: hsl(var(--primary)); white-space: nowrap; }
+  .plugsvg { width: 100%; height: auto; overflow: visible; }
+  .plugsvg text { fill: hsl(var(--foreground)); font: 600 14px var(--font-body); text-anchor: middle; }
+  .plugsvg text.sm { fill: #A8ABB0; font-weight: 400; font-size: 12.5px; }
+  .aside { font-size: 15px !important; color: hsl(var(--primary)) !important; }
+  .plan .ico { color: hsl(var(--primary)); font-size: 20px; }
+
+  /* API card */
+  .api { max-width: 520px; }
+  .card { border: 1px solid hsl(var(--border)); border-radius: 14px; background: hsl(var(--card) / .95); box-shadow: 0 30px 80px hsl(0 0% 0% / .5); overflow: hidden; }
+  .cardhead { display: flex; justify-content: space-between; align-items: center; padding: .8rem 1rem; border-bottom: 1px solid hsl(var(--border)); }
+  .badge { font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: hsl(var(--primary)); }
+  .tag { font-size: 12px; color: #A8ABB0; border: 1px solid hsl(var(--border)); border-radius: 999px; padding: .1rem .6rem; }
+  .tag.live { color: hsl(var(--primary)); border-color: hsl(var(--primary)); }
+  .req { margin: 0; padding: .9rem 1rem; font: 600 14px/1.5 ui-monospace, SFMono-Regular, Menlo, monospace; color: hsl(var(--foreground)); overflow-wrap: anywhere; white-space: pre-wrap; }
+  .req::before { content: "→ "; color: hsl(var(--primary)); }
+  .ans { margin: 0; padding: .3rem 1rem .8rem; }
+  .ans div { display: flex; justify-content: space-between; gap: 1rem; padding: .55rem 0; border-top: 1px solid hsl(var(--border)); font-size: 15px; }
+  .ans dt { color: #A8ABB0; font-family: ui-monospace, monospace; font-size: 13px; }
+  .ans dd { margin: 0; text-align: right; font-weight: 600; }
+  .ans div.hl dd { color: hsl(var(--primary)); }
+
+
+  .runrow { display: flex; align-items: center; gap: .8rem; padding: .7rem 1rem; border-top: 1px solid hsl(var(--border)); }
+  .runrow { flex-wrap: wrap; gap: .6rem; padding: .9rem 1rem 1rem; }
+  .runrow button { min-height: 44px; padding: 0 1.1rem; font-size: 15px; animation: none; white-space: nowrap; flex: 1 1 auto; }
+  .runrow .ghost { background: transparent; color: hsl(var(--foreground)); box-shadow: inset 0 0 0 1px #303740; }
+  .runrow .ghost:hover { box-shadow: inset 0 0 0 1px hsl(var(--primary)); color: hsl(var(--primary)); }
+  .lv { border-top: 1px solid hsl(var(--border)); padding: 1rem; }
+  .lv .source.warn { font-size: 13px; padding: .5rem .7rem; border: 1px solid hsl(var(--primary)); border-radius: 8px; }
+  .lv h4 { display: flex; align-items: center; gap: .55rem; margin: 1.3rem 0 .3rem; font-size: 15px; }
+  .lv h4 b { display: grid; place-items: center; width: 22px; height: 22px; border-radius: 50%; background: hsl(var(--primary)); color: #111; font-size: 12px; }
+  .lv .rows, .lv #history { margin-top: .4rem; }
+  .lv #history li { font-size: 14px; gap: .2rem 1rem; }
+  .lv #history .meta { font-size: 12px; color: #A8ABB0; }
+  .lv #verify { width: 100%; min-height: 44px; font-size: 15px; animation: none; }
+  .lv .result strong { font-size: 16px; }
+  @media (min-width: 821px) { .ch[data-ch="6"] { align-items: start; } .ch[data-ch="6"] .copy { position: sticky; top: 30vh; } }
+  [hidden] { display: none !important; }
+  .demo { padding: 1rem; }
+  .dstrip { display: flex; justify-content: space-between; position: relative; margin-bottom: 1rem; }
+  .dstrip .dn { display: flex; flex-direction: column; align-items: center; gap: .3rem; font-size: 12px; color: #A8ABB0; width: 20%; transition: color .3s; }
+  .dstrip .dn .disc { width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center; box-shadow: inset 0 0 0 1px #303740; transition: box-shadow .3s; }
+  .dstrip .dn.on { color: hsl(var(--foreground)); } .dstrip .dn.on .disc { box-shadow: inset 0 0 0 2px hsl(var(--primary)); }
+  .dstrip .dcargo { position: absolute; top: -14px; width: 20%; display: grid; place-items: center; color: hsl(var(--primary)); transition: left .9s cubic-bezier(.65,0,.35,1); }
+  .dstep { margin: 0 0 .7rem; font-size: 15px; font-weight: 600; color: hsl(var(--foreground)); }
+  .wallets { display: flex; gap: .6rem; flex-wrap: wrap; }
+  .wallet { flex: 1 1 140px; min-height: 48px; font-size: 15px; animation: none; background: transparent; color: hsl(var(--foreground)); box-shadow: inset 0 0 0 1px hsl(var(--primary)); }
+  .wallet.done { background: hsl(var(--primary)); color: #111; }
+  .wallet:disabled { opacity: 1; cursor: default; }
+  .drec { list-style: none; margin: .8rem 0 0; padding: 0; font-size: 13.5px; }
+  .drec li { display: flex; justify-content: space-between; gap: .5rem; padding: .4rem 0; border-top: 1px solid hsl(var(--border)); }
+  .drec li span:last-child { color: hsl(var(--primary)); }
+  .endpoint { flex-basis: 100%; font-size: 12.5px; color: #A8ABB0; }
+
+
+  /* header access button + last scene: the API in a terminal */
+  .hr { display: flex; align-items: center; gap: .6rem; }
+  .access { pointer-events: auto; display: inline-flex; align-items: center; min-height: 36px; padding: 0 .9rem; border-radius: var(--radius); background: hsl(var(--primary)); color: hsl(var(--primary-foreground)); font-size: 14px; font-weight: 600; text-decoration: none; white-space: nowrap; }
+  .access:focus-visible, .cta:focus-visible { outline: 2px solid hsl(var(--ring)); outline-offset: 3px; }
+  .ch[data-ch="8"] .art { max-width: 680px; }
+  .brand, .label { white-space: nowrap; }
+  .term .bar { display: flex; align-items: center; gap: .4rem; padding: .7rem 1rem; border-bottom: 1px solid hsl(var(--border)); }
+  .term .bar i { width: 10px; height: 10px; border-radius: 50%; background: #303740; }
+  .term .bar span { margin-left: auto; font-size: 12px; color: #A8ABB0; }
+  .term pre { margin: 0; padding: 1rem 1.1rem 1.2rem; font: 12.5px/1.6 ui-monospace, SFMono-Regular, Menlo, monospace; color: hsl(var(--foreground)); white-space: pre-wrap; overflow-wrap: anywhere; }
+  .term .p { color: hsl(var(--primary)); user-select: none; }
+  .term .c { color: hsl(var(--muted-foreground)); }
+  .term .k { color: #A8ABB0; }
+  .term .ba { word-break: break-all; }
+  .term .v { color: hsl(var(--primary)); }
+  .term .cur { display: inline-block; width: .6em; height: 1.1em; vertical-align: -.2em; background: hsl(var(--primary)); animation: blink 1.1s steps(1) infinite; }
+  @keyframes blink { 50% { opacity: 0; } }
+  .cta { display: flex; align-items: center; justify-content: center; min-height: 60px; margin-top: 1.25rem; border-radius: var(--radius); background: hsl(var(--primary)); color: hsl(var(--primary-foreground)); font-size: 20px; font-weight: 700; text-decoration: none; box-shadow: 0 0 40px hsl(var(--primary) / .25); }
+  .cta:active { transform: scale(.98); }
+
+  @media (max-width: 820px) {
+    header { padding: 1rem; }
+    .ch { grid-template-columns: 1fr; align-content: end; gap: 1.5rem; padding: 5rem 1rem 3rem; }
+    .ch .art { order: -1; }
+    .globe-spot { height: 52vh; }
+    h1, h2 { font-size: 32px; }
+    .strip { height: 150px; transform: scale(.82); transform-origin: top center; }
+    .node { width: 64px; margin-left: -32px; }
+    .ledger li { font-size: 12px; }
+    .ans div { padding: .4rem 0; font-size: 14px; }
+    .req { font-size: 12.5px; }
+          .pin { font-size: 11px; }
+    .pin a { display: none; }
+    .copy p { font-size: 15px; }
+    .partners { gap: 1rem 2rem; }
+    .partners img[src$="cisbra.png"] { width: 138px; height: 30px; }
+    .partners img[src$="camacol.png"] { width: 50px; height: 36px; }
+    .partners .zis { font-size: 30px; }
+      .verifybox { padding: 1rem; }
+    .label .full { display: none; }
+    .brand { font-size: 14px; }
+    .hr { gap: .4rem; }
+    .label { padding: .2rem .5rem; font-size: 12px; }
+    .access { padding: 0 .7rem; font-size: 13px; }
+    .ch[data-ch="8"] .art { order: 0; }
+    .term pre { font-size: 11.5px; padding: .9rem; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    #verify { animation: none; }
+    .pin, .dstrip .dcargo { transition: none; }
+    .term .cur { animation: none; }
+  }
+</style>
+<link rel="stylesheet" href="access.css">
+</head>
+<body>
+<canvas id="stage" aria-hidden="true" title="Drag to turn the globe"></canvas>
+<div id="dim"></div>
+<div id="pins" aria-hidden="true"></div>
+
+<header>
+  <span class="brand">Radox <i>Rail</i></span>
+  <span class="hr"><span class="label"><span class="full">Stellar </span>mainnet<span class="full"> · sandbox on testnet</span></span><a class="access" data-access href="mailto:pedro@radox.net?subject=Radox%20Rail%20API%20access">Request access</a></span>
+</header>
+
+
+
+
+
+
+
+<main>
+  <section class="ch" data-ch="0">
+    <div class="copy">
+    <h1>Goods cross borders blind.</h1>
+    <p>A container of coffee leaves a farm in Brazil, ships from Rio to Miami and ends with a buyer in the US. Five companies hold it on the way, and each keeps its own records.</p>
+    </div>
+    <div class="art globe-spot" aria-hidden="true"></div>
+  </section>
+  <section class="ch" data-ch="1">
+    <div class="copy">
+    <h2>Who has it right now?</h2>
+    <p>When cargo goes missing, every company says it handed over fine. Nobody can prove otherwise.</p>
+    </div>
+    <div class="art" aria-hidden="true" data-art="1">
+    <div class="strip"></div>
+  </div>
+  </section>
+  <section class="ch" data-ch="2">
+    <div class="copy">
+    <h2>Both hands sign.</h2>
+    <p>At every handover, the company giving the cargo and the one receiving it both confirm. The record is saved where no one can edit it.</p>
+    </div>
+    <div class="art" aria-hidden="true" data-art="2">
+    <div class="strip"></div>
+    <div class="ledger"><div class="lh"><i data-icon="lock"></i>Shared record</div><ol></ol></div>
+  </div>
+  </section>
+  <section class="ch" data-ch="3">
+    <div class="copy">
+    <h2>A token proves who owns the goods. Not who holds them.</h2>
+    <p>A token on Stellar says who owns a container, not who is holding it. On the rail, each shipment gets a custody record that names its token: every handover signed by both companies, readable by anyone. A lender can check who signed last before paying.</p>
+    <p class="aside">The contract is open source: any tokenized Stellar asset can carry a custody record.</p>
+    </div>
+    <div class="art globe-spot" aria-hidden="true"></div>
+  </section>
+  <section class="ch" data-ch="4">
+    <div class="copy">
+    <h2>Plug in once.</h2>
+    <p>A port or an airport keeps its own software. One adapter connects it to everyone on the rail.</p>
+    </div>
+    <div class="art" aria-hidden="true" data-art="4"><svg class="plugsvg" viewBox="0 0 560 300"></svg></div>
+  </section>
+  <section class="ch" data-ch="5">
+    <div class="copy">
+    <h2>Try it. Pass the coffee.</h2>
+    <p>Each company has a wallet. Tap both to sign the handover (a practice run: nothing is sent). The coffee only moves when both have signed.</p>
+    <p class="aside">In the product, buyers, insurers and lenders subscribe and read every handover as data. On the test network the record is public.</p>
+    </div>
+    <div class="art api" data-art="5" aria-label="Interactive demo: sign each handover">
+  <div class="card">
+    <div class="cardhead"><span class="badge">Try it</span><span class="tag" id="api-tag">Practice run</span></div>
+    <div class="demo">
+      <div class="dstrip" id="d-strip"></div>
+      <p class="dstep" id="d-step" aria-live="polite"></p>
+      <div class="wallets" id="d-wallets"><button type="button" class="wallet" id="d-a"></button><button type="button" class="wallet" id="d-b"></button></div>
+      <ol class="drec" id="d-rec"></ol>
+    </div>
+    <div id="d-read" hidden>
+      <pre class="req" id="api-req">GET /api/shipments/31b4cff7…a5e37</pre>
+      <dl class="ans" id="api-ans">
+        <div><dt>status</dt><dd>Delivered</dd></div>
+        <div class="hl"><dt>current_custodian</dt><dd>Buyer</dd></div>
+        <div><dt>route</dt><dd>Warehouse → Trucker → Ship → Customs → Buyer</dd></div>
+        <div><dt>seq</dt><dd>4</dd></div>
+      </dl>
+    </div>
+    <div class="runrow"><button id="run" type="button" hidden>Read the real one on Stellar</button><button type="button" id="d-reset" class="ghost" hidden>Start again</button><span class="endpoint" id="api-note">Practice run in your browser. The real contract runs on Stellar's test network.</span></div>
+  </div>
+</div>
+  </section>
+  <section class="ch" data-ch="6">
+    <div class="copy">
+    <h2>Check it yourself.</h2>
+    <p>This is the real record of a test shipment, read live from Stellar. It answers three questions: where is the coffee now, who signed each handover, and has anyone changed the record since.</p>
+    <p class="aside">No account and no login: anyone can run this check.</p>
+    </div>
+    <div class="art api" aria-label="Live record from Stellar testnet">
+  <div class="card">
+    <div class="lv" id="check">
+      <span id="source" class="source lvsrc" aria-live="polite">Loading from Stellar testnet…</span>
+      <h4><b>1</b> Where the coffee is now</h4>
+      <div id="state" class="rows" aria-label="Shipment state"></div>
+      <h4><b>2</b> Every handover, signed by both companies</h4>
+      <p class="note">The names are test companies on Stellar's test network.</p>
+      <ol id="history" aria-label="Custody history in ledger order"><li><span>Loading…</span></li></ol>
+      <h4><b>3</b> Check that nobody changed it</h4>
+      <p class="note" id="fp-note">A fingerprint is a short code computed from the whole history: change anything and the code changes. Your browser rebuilds it from every step and compares it with the one stored on Stellar.</p>
+      <button id="verify" type="button" disabled>Check the fingerprint</button>
+      <p id="result" class="result" aria-live="polite"></p>
+      <p id="status" role="status"></p>
+      <p id="about" class="note"></p>
+      <p class="note">Token issuance and burn use Radox's transfer_agent contract, built before the event. The custody_registry contract, the scripts and this page were built at HackMeridian. Open source, Apache-2.0 · <a href="llms.txt">llms.txt</a> · Icons: Lucide (ISC).</p>
+    </div>
+  </div>
+</div>
+  </section>
+  <section class="ch" data-ch="7">
+    <div class="copy">
+    <h2>Rio–Miami first. Every lane next.</h2>
+    <p>Radox is the technology team of the International Service Zone (ZIS), the Rio–Miami trade program, with the Brazilian Chamber of Commerce, Industry and Services (Cisbra) and the Latin Chamber of Commerce of the USA (Camacol). Every port and airport in the program will connect through this rail.</p>
+    <div class="partners">
+      <img src="logos/cisbra.png" width="156" height="34" alt="Cisbra, Brazilian Chamber of Commerce, Industry and Services" loading="lazy" decoding="async">
+      <span class="zis" role="img" aria-label="ZIS, International Service Zone">ZIS</span>
+      <img src="logos/camacol.png" width="56" height="40" alt="Camacol, Latin Chamber of Commerce of the USA" loading="lazy" decoding="async">
+    </div>
+    <p class="aside">Each company pays a subscription plus a fee per shipment, the way banks pay for SWIFT.</p>
+    <div class="plans">
+      <span class="plan"><i data-icon="credit-card"></i>Subscription</span>
+      <span class="plus">+</span>
+      <span class="plan"><i data-icon="ticket"></i>Fee per shipment</span>
+    </div>
+    <p class="built">Built on <img src="logos/stellar.svg" width="80" height="20" alt="Stellar" loading="lazy" decoding="async"></p>
+    </div>
+    <div class="art globe-spot" aria-hidden="true"></div>
+  </section>
+  <section class="ch" data-ch="8">
+    <div class="copy">
+    <h2>Build on it.</h2>
+    <p>The rail has an open API on Stellar. Read any shipment, on mainnet or testnet, or run your own in the testnet sandbox, with no sign-up. Production use is by request.</p>
+    <p class="aside">The registry is live on mainnet. Its first shipment: 4 handovers, each signed by both companies.</p>
+    </div>
+    <div class="art" data-art="8">
+  <div class="card term">
+    <div class="bar" aria-hidden="true"><i></i><i></i><i></i><span>Stellar testnet</span></div>
+<pre aria-label="Example API calls and answers"><span class="p">$</span> API=https://rio-miami-rail.vercel.app/api
+<span class="ba"><span class="p">$</span> DEMO=31b4cff785831659b4ecb8fd3e7382f9760a12ef45ef7eb30f45b3b6911a5e37</span>
+<span class="p">$</span> curl -s $API/shipments/$DEMO
+{
+  <span class="k">"network"</span>: "testnet",
+  <span class="k">"source"</span>: "live",
+  <span class="k">"shipment"</span>: {
+    <span class="k">"status"</span>: <span class="v">"Delivered"</span>,
+    <span class="k">"current_custodian"</span>: "GAG5WGRM…DA35P7",
+    <span class="k">"seq"</span>: 4,
+    <span class="k">"head"</span>: "2d74fec0…83195414", …
+  }
+}
+
+<span class="c"># sandbox: your own shipment, signed on testnet</span>
+<span class="p">$</span> KEY=$(curl -s -X POST $API/sandbox/shipments | jq -r .shipment.key)
+<span class="p">$</span> for i in 1 2 3 4; do curl -s -X POST $API/sandbox/shipments/$KEY/handover; done
+<span class="p">$</span> curl -s -X POST $API/sandbox/shipments/$KEY/deliver
+
+<span class="c"># mainnet: the first shipment</span>
+<span class="p">$</span> curl -s "$API/shipments/5dc2e39a…25656b2d?network=mainnet"
+{ <span class="k">"network"</span>: "mainnet", <span class="k">"shipment"</span>: { <span class="k">"status"</span>: <span class="v">"Delivered"</span>, <span class="k">"seq"</span>: 4, … } }
+<span class="p">$</span> <span class="cur"></span></pre>
+  </div>
+  <a class="cta" href="docs">Read the docs</a>
+</div>
+  </section>
+</main>
+<footer>Radox Rail · open source, Apache-2.0 · Stellar testnet with test keys · <a href="docs">API docs</a> · <a href="llms.txt">llms.txt</a></footer>
+
+
+<script src="vendor/d3-array.min.js" defer></script>
+<script src="vendor/d3-geo.min.js" defer></script>
+<script src="vendor/gsap.min.js" defer></script>
+<script src="stellar-sdk.min.js" integrity="sha384-m8PUt1dOZNB/F00Ptl24XGCprXHMeUMNhxKegKRqhjvaPZVqgS9FM9Cf6IIfZ6tL" defer></script>
+<script src="app.js" defer></script>
+<script type="module" src="main.js"></script>
+<script type="module" src="access.js"></script>
+</body>
+</html>

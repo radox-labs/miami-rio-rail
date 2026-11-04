@@ -1,0 +1,135 @@
+{
+  "transaction": {
+    "_links": {
+      "self": {
+        "href": "https://horizon-testnet.stellar.org/transactions/56a0f006e3373df34c96ae7b0f02c4b66753ccaca6ccc48fe5125bb65e7b7cc2"
+      },
+      "account": {
+        "href": "https://horizon-testnet.stellar.org/accounts/GCXYI6RYMJQUNO2VFBPUTZ55WBRFVGBTZBOW3YF65ABLGPNNSHX3J4OF"
+      },
+      "ledger": {
+        "href": "https://horizon-testnet.stellar.org/ledgers/5381143"
+      },
+      "operations": {
+        "href": "https://horizon-testnet.stellar.org/transactions/56a0f006e3373df34c96ae7b0f02c4b66753ccaca6ccc48fe5125bb65e7b7cc2/operations{?cursor,limit,order}",
+        "templated": true
+      },
+      "effects": {
+        "href": "https://horizon-testnet.stellar.org/transactions/56a0f006e3373df34c96ae7b0f02c4b66753ccaca6ccc48fe5125bb65e7b7cc2/effects{?cursor,limit,order}",
+        "templated": true
+      },
+      "precedes": {
+        "href": "https://horizon-testnet.stellar.org/transactions?order=asc&cursor=23111833200144384"
+      },
+      "succeeds": {
+        "href": "https://horizon-testnet.stellar.org/transactions?order=desc&cursor=23111833200144384"
+      },
+      "transaction": {
+        "href": "https://horizon-testnet.stellar.org/transactions/56a0f006e3373df34c96ae7b0f02c4b66753ccaca6ccc48fe5125bb65e7b7cc2"
+      }
+    },
+    "id": "56a0f006e3373df34c96ae7b0f02c4b66753ccaca6ccc48fe5125bb65e7b7cc2",
+    "paging_token": "23111833200144384",
+    "successful": true,
+    "hash": "56a0f006e3373df34c96ae7b0f02c4b66753ccaca6ccc48fe5125bb65e7b7cc2",
+    "ledger": 5381143,
+    "created_at": "2026-10-25T11:55:02Z",
+    "source_account": "GCXYI6RYMJQUNO2VFBPUTZ55WBRFVGBTZBOW3YF65ABLGPNNSHX3J4OF",
+    "source_account_sequence": "23111249084547078",
+    "fee_account": "GCXYI6RYMJQUNO2VFBPUTZ55WBRFVGBTZBOW3YF65ABLGPNNSHX3J4OF",
+    "fee_charged": "34571",
+    "max_fee": "5042832",
+    "operation_count": 1,
+    "envelope_xdr": "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",
+    "result_xdr": "AAAAAAAAhwsAAAAAAAAAAQAAAAAAAAAYAAAAAHHJfl2MQ4VLpM4A9Ktfkay/AahLTgrUSQORQSn9UdfBAAAAAA==",
+    "fee_meta_xdr": "AAAAAgAAAAMAUhwWAAAAAAAAAACvhHo4YmFGu1UoX0nnvbBiWpgzyF1t4L7oArM9rZHvtAAAABcqWOjfAFIbjwAAAAUAAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAIAAAAAAAAAAAAAAAAAAAADAAAAAABSHBYAAAAAat3uEQAAAAAAAAABAFIcFwAAAAAAAAAAr4R6OGJhRrtVKF9J572wYlqYM8hdbeC+6AKzPa2R77QAAAAXKlhBKwBSG48AAAAFAAAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAAwAAAAAAUhwWAAAAAGrd7hEAAAAA",
+    "memo_type": "none",
+    "signatures": [
+      "DueE7U8JUWsu7crbBeRBpIeOxUXzfmZKNbJhkkPgaKgCCtiI5odF2v7XGeiHym11jABp+I+cIt08Iz6ZLZHgCw=="
+    ],
+    "preconditions": {
+      "timebounds": {
+        "min_time": "0",
+        "max_time": "1792929419"
+      }
+    }
+  },
+  "operations": {
+    "_links": {
+      "self": {
+        "href": "https://horizon-testnet.stellar.org/transactions/56a0f006e3373df34c96ae7b0f02c4b66753ccaca6ccc48fe5125bb65e7b7cc2/operations?cursor=&limit=10&order=asc"
+      },
+      "next": {
+        "href": "https://horizon-testnet.stellar.org/transactions/56a0f006e3373df34c96ae7b0f02c4b66753ccaca6ccc48fe5125bb65e7b7cc2/operations?cursor=23111833200144385&limit=10&order=asc"
+      },
+      "prev": {
+        "href": "https://horizon-testnet.stellar.org/transactions/56a0f006e3373df34c96ae7b0f02c4b66753ccaca6ccc48fe5125bb65e7b7cc2/operations?cursor=23111833200144385&limit=10&order=desc"
+      }
+    },
+    "_embedded": {
+      "records": [
+        {
+          "_links": {
+            "self": {
+              "href": "https://horizon-testnet.stellar.org/operations/23111833200144385"
+            },
+            "transaction": {
+              "href": "https://horizon-testnet.stellar.org/transactions/56a0f006e3373df34c96ae7b0f02c4b66753ccaca6ccc48fe5125bb65e7b7cc2"
+            },
+            "effects": {
+              "href": "https://horizon-testnet.stellar.org/operations/23111833200144385/effects"
+            },
+            "succeeds": {
+              "href": "https://horizon-testnet.stellar.org/effects?order=desc&cursor=23111833200144385"
+            },
+            "precedes": {
+              "href": "https://horizon-testnet.stellar.org/effects?order=asc&cursor=23111833200144385"
+            }
+          },
+          "id": "23111833200144385",
+          "paging_token": "23111833200144385",
+          "transaction_successful": true,
+          "source_account": "GCXYI6RYMJQUNO2VFBPUTZ55WBRFVGBTZBOW3YF65ABLGPNNSHX3J4OF",
+          "type": "invoke_host_function",
+          "type_i": 24,
+          "created_at": "2026-10-25T11:55:02Z",
+          "transaction_hash": "56a0f006e3373df34c96ae7b0f02c4b66753ccaca6ccc48fe5125bb65e7b7cc2",
+          "function": "HostFunctionTypeHostFunctionTypeInvokeContract",
+          "parameters": [
+            {
+              "value": "AAAAEgAAAAGCmt2JxZ55jScZXxMp5rmI/XEuekDKS6LYWZTOM7R0fg==",
+              "type": "Address"
+            },
+            {
+              "value": "AAAADwAAAAhoYW5kb3Zlcg==",
+              "type": "Sym"
+            },
+            {
+              "value": "AAAADQAAACAxtM/3hYMWWbTsuP0+c4L5dgoS70XvfrMPRbO2kRpeNw==",
+              "type": "Bytes"
+            },
+            {
+              "value": "AAAAEgAAAAAAAAAAohaGVGHPrOWo9yjyMEBTlqW0HXwF5Fex5l3N0itNaXk=",
+              "type": "Address"
+            },
+            {
+              "value": "AAAAEgAAAAAAAAAAZRFEFoNrFZQMTQE6TctfUkuPt9Nt5racd++xzdbin6A=",
+              "type": "Address"
+            },
+            {
+              "value": "AAAADQAAACAYRPMN+cJCZd1NqGgQwTNnHMGoFRM+V29pfc7rkheJpA==",
+              "type": "Bytes"
+            },
+            {
+              "value": "AAAAAwAAAAM=",
+              "type": "U32"
+            }
+          ],
+          "address": "",
+          "salt": "",
+          "asset_balance_changes": null
+        }
+      ]
+    }
+  }
+}

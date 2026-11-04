@@ -1,0 +1,46 @@
+# Radox Rail
+
+> A shared custody record for goods in transit, on Stellar testnet. At each handover between companies on a route (for example a warehouse, a port, a carrier, customs and the buyer), the company giving the goods and the company receiving them both sign; the step is added to a hash chain stored as one 32-byte head on a Soroban contract, and anyone can recompute it from public data. Built at HackMeridian 2026 on 25-26 Oct. First corridor: Rio-Miami.
+
+The custody registry is deployed on Stellar mainnet (CDV7YI7KYTDH4LPOLVUVRTFERJKYOWBBT6KS56ZX3V7EOGDBWS7LD4UP), with one shipment run there: 4 dual-signed handovers and a delivery (proofs/mainnet.json). The custodians are test accounts, not real companies, and no real goods or money move. The sandbox and the token flow run on Stellar testnet with test keys.
+
+## What was built at the event
+
+- `custody_registry`, a Soroban contract (Apache-2.0, source now in https://github.com/radox-labs/radox-contracts/tree/main/contracts/custody_registry): open a shipment with an ordered route, handovers that need `require_auth()` from both the outgoing and the incoming custodian, attestations from allow-listed sources, delivery, and an admin freeze. 26 tests (24 unit, 2 property).
+- A testnet harness, verification scripts (`scripts/verify-head.mjs`, `scripts/handover-signers.mjs`) and this public page with a Verify head button.
+- An open spec of the record format: CUSTODY-SPEC.md.
+- Four proof sets: the demo lifecycle (7 transactions, 9 refusal branches by simulation), a second shipment where two teammates signed with their own keys, two test companies' chains on one registry (10 transactions, both heads MATCH), and a rehearsal on a local fork of mainnet state (15 transactions applied, 9 refusals, nothing sent to mainnet).
+
+Prior work, from before the event: the Radox platform and its `transfer_agent` contract, which registers, mints, delivers to the holder and burns the demo cargo token. Its source was closed at submission time and is being migrated to radox-contracts. Details in the README, section Prior work.
+
+## Open API (Stellar testnet)
+
+An open HTTP API over the custody_registry contract, with no key and no account. Read any shipment, check its history and head, and run a shipment in a sandbox: each handover is a real testnet transaction signed by both companies, with throwaway test keys held by the server. Reference and a live "Try the API" panel: [/docs](https://rio-miami-rail.vercel.app/docs). Schema: [openapi.json](https://rio-miami-rail.vercel.app/docs/openapi.json) (OpenAPI 3.1). `?network=mainnet` is wired in and answers 503 until the mainnet registry is deployed. This API serves only the open custody_registry contract; Radox's own platform is a separate system and is not exposed here.
+
+- `GET /api/shipments/{key}`: status, current custodian, route, seq and head, read live from the contract.
+- `GET /api/shipments/{key}/history`: every registry call for the key with its transaction hash; recomputes the head and says whether it matches the contract.
+- `POST /api/sandbox/shipments`: opens a test shipment on a five-stop route in the sandbox registry (CBTHLSQXQNEZ25UMVRP5TGOCPOTJXLFISJ2EF5NRNITAZPGMMW656ERX, same wasm as the demo registry).
+- `POST /api/sandbox/shipments/{key}/handover`: the next handover, signed by both companies; a wrong company is refused by the contract (E_WRONG_CUSTODIAN).
+- `POST /api/sandbox/shipments/{key}/deliver`: the last company hands the goods to the holder. Sandbox shipments name the native XLM contract as a placeholder token and burn nothing.
+
+## Links
+
+- [Shipment page](https://rio-miami-rail.vercel.app/)
+- [API docs](https://rio-miami-rail.vercel.app/docs)
+- [OpenAPI schema](https://rio-miami-rail.vercel.app/docs/openapi.json)
+- [Code repository and README](https://github.com/pwsaragossy/rio-miami-rail)
+- [Open spec: CUSTODY-SPEC.md](https://github.com/pwsaragossy/rio-miami-rail/blob/main/CUSTODY-SPEC.md)
+- [Proofs](https://github.com/pwsaragossy/rio-miami-rail/tree/main/proofs)
+- [Threat model and known limits](https://github.com/pwsaragossy/rio-miami-rail#threat-model-and-known-limits)
+- [AI usage](https://github.com/pwsaragossy/rio-miami-rail/blob/main/AI_USAGE.md)
+- [custody_registry contract on testnet: CCBJVXMJYWPHTDJHDFPRGKPGXGEP24JOPJAMUS5C3BMZJTRTWR2H4LII](https://stellar.expert/explorer/testnet/contract/CCBJVXMJYWPHTDJHDFPRGKPGXGEP24JOPJAMUS5C3BMZJTRTWR2H4LII)
+
+## Demo lifecycle on testnet (7 signed transactions)
+
+- [open: 2b3d51f0cdf113d34a7c20dd373142c379926bd3bd24ca0a9cb6d4718e379902](https://stellar.expert/explorer/testnet/tx/2b3d51f0cdf113d34a7c20dd373142c379926bd3bd24ca0a9cb6d4718e379902)
+- [handover: 635c99ac73cb13416e6b52f29ac9a067fbc615e01b8de962eb36245db3f0bd38](https://stellar.expert/explorer/testnet/tx/635c99ac73cb13416e6b52f29ac9a067fbc615e01b8de962eb36245db3f0bd38)
+- [handover: 56a0f006e3373df34c96ae7b0f02c4b66753ccaca6ccc48fe5125bb65e7b7cc2](https://stellar.expert/explorer/testnet/tx/56a0f006e3373df34c96ae7b0f02c4b66753ccaca6ccc48fe5125bb65e7b7cc2)
+- [handover: ac268a49e00ddf4745c9026bf01e3c77e5c451a7e2396100ef590a36ecc3c4b2](https://stellar.expert/explorer/testnet/tx/ac268a49e00ddf4745c9026bf01e3c77e5c451a7e2396100ef590a36ecc3c4b2)
+- [handover: 5199d4fb6b2833662327deecbf5fcaf058a0d7a464f97974edd107f5de400b7a](https://stellar.expert/explorer/testnet/tx/5199d4fb6b2833662327deecbf5fcaf058a0d7a464f97974edd107f5de400b7a)
+- [deliver: 919def8c0b3f29ae650f5f1ea6d632e49efd4a9442381c84c83d858ad2144e37](https://stellar.expert/explorer/testnet/tx/919def8c0b3f29ae650f5f1ea6d632e49efd4a9442381c84c83d858ad2144e37)
+- [redeem (burn): 864fd1644d30bf708a59f94ca5b0fc303a50deccfd96099bd32dfb67e215644d](https://stellar.expert/explorer/testnet/tx/864fd1644d30bf708a59f94ca5b0fc303a50deccfd96099bd32dfb67e215644d)

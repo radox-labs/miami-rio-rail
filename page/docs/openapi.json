@@ -1,0 +1,531 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Radox Rail API (Stellar testnet)",
+    "version": "0.1.0",
+    "summary": "Read who holds a shipment, and try dual-signed handovers in a sandbox.",
+    "description": "An open API over the custody_registry Soroban contract on Stellar testnet. Each handover of a shipment is signed by the company giving it and the company receiving it; each step extends a hash chain (the head) that anyone can recompute. Read endpoints call the contract through simulateTransaction. Sandbox endpoints send real testnet transactions with throwaway test keys held by the server, so you can try the flow with no account and no keys. Testnet only: no real goods, money or companies.",
+    "license": {
+      "name": "Apache-2.0",
+      "url": "https://www.apache.org/licenses/LICENSE-2.0"
+    }
+  },
+  "servers": [
+    {
+      "url": "https://rio-miami-rail.vercel.app",
+      "description": "Stellar testnet"
+    }
+  ],
+  "tags": [
+    {
+      "name": "read",
+      "description": "Read-only. No key, no signature."
+    },
+    {
+      "name": "sandbox",
+      "description": "Sends real testnet transactions with throwaway keys held by the server. Rate limited."
+    }
+  ],
+  "paths": {
+    "/api/shipments/{key}": {
+      "get": {
+        "tags": [
+          "read"
+        ],
+        "operationId": "getShipment",
+        "summary": "Current state of a shipment: status, current custodian, route, seq, head.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/key"
+          },
+          {
+            "$ref": "#/components/parameters/network"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Found. `source` is `live` (read from the contract now) or `snapshot, not live` (testnet could not be reached; a saved copy of a demo shipment).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ShipmentResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error"
+          },
+          "502": {
+            "$ref": "#/components/responses/Error"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
+    },
+    "/api/shipments/{key}/history": {
+      "get": {
+        "tags": [
+          "read"
+        ],
+        "operationId": "getShipmentHistory",
+        "summary": "Every registry call for the shipment, with the head recomputed step by step.",
+        "description": "Transaction hashes come from the contract's events (the testnet RPC keeps them about 7 days); each step's arguments come from Horizon. `head_matches` is true when the head recomputed from those arguments equals the head stored in the contract, and null when the opening is older than the event window.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/key"
+          },
+          {
+            "$ref": "#/components/parameters/network"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "History and check.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HistoryResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error"
+          },
+          "502": {
+            "$ref": "#/components/responses/Error"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
+    },
+    "/api/sandbox/shipments": {
+      "post": {
+        "tags": [
+          "sandbox"
+        ],
+        "operationId": "openSandboxShipment",
+        "summary": "Open a new test shipment on a five-stop route (warehouse, trucker, ship, customs, buyer).",
+        "description": "Creates six throwaway testnet accounts (five custodians and the holder), then calls `open` on the sandbox registry. Two confirmed transactions, about 10 to 15 seconds. Limits: up to 5 per 10 minutes per IP address, about 20 per hour for everyone.",
+        "responses": {
+          "201": {
+            "description": "Opened.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WriteResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "$ref": "#/components/responses/Error"
+          },
+          "502": {
+            "$ref": "#/components/responses/Error"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error"
+          },
+          "504": {
+            "$ref": "#/components/responses/Error"
+          },
+          "400": {
+            "$ref": "#/components/responses/Error"
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/network"
+          }
+        ]
+      }
+    },
+    "/api/sandbox/shipments/{key}/handover": {
+      "post": {
+        "tags": [
+          "sandbox"
+        ],
+        "operationId": "sandboxHandover",
+        "summary": "Run the next handover, signed by both companies.",
+        "description": "By default the current custodian hands the shipment to the next stop, and both sign. Set `from` to another company to see the registry refuse it (E_WRONG_CUSTODIAN), or `assurance` to 0 to see E_BAD_ASSURANCE. A refusal sends no transaction. Limit: 30 sandbox writes per 10 minutes per IP address.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/key"
+          },
+          {
+            "$ref": "#/components/parameters/network"
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "from": {
+                    "type": "string",
+                    "enum": [
+                      "warehouse",
+                      "trucker",
+                      "ship",
+                      "customs",
+                      "buyer"
+                    ],
+                    "description": "The company that claims to hand over. Default: the current custodian."
+                  },
+                  "assurance": {
+                    "type": "integer",
+                    "description": "1 = external attestation only, 2 = one side by delegation, 3 = both signed in person. Declared by the caller; the registry accepts 1 to 3. Default 3."
+                  },
+                  "evidence": {
+                    "type": "string",
+                    "description": "Any text; its sha256 is stored as the handover's evidence hash."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Handed over.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WriteResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error"
+          },
+          "409": {
+            "$ref": "#/components/responses/Error"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "502": {
+            "$ref": "#/components/responses/Error"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error"
+          },
+          "504": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
+    },
+    "/api/sandbox/shipments/{key}/deliver": {
+      "post": {
+        "tags": [
+          "sandbox"
+        ],
+        "operationId": "sandboxDeliver",
+        "summary": "The last company hands the goods to the holder; the shipment becomes Delivered.",
+        "description": "Signed by the buyer (last custodian) and the holder. Before every handover is done, the registry refuses it (E_NOT_FINAL). Sandbox shipments carry no token, so nothing is burned.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/key"
+          },
+          {
+            "$ref": "#/components/parameters/network"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Delivered.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WriteResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/Error"
+          },
+          "409": {
+            "$ref": "#/components/responses/Error"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error"
+          },
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "502": {
+            "$ref": "#/components/responses/Error"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error"
+          },
+          "504": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "parameters": {
+      "key": {
+        "name": "key",
+        "in": "path",
+        "required": true,
+        "description": "64 lowercase hex characters: sha256 of \"<container>|<origin>\".",
+        "schema": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "example": "31b4cff785831659b4ecb8fd3e7382f9760a12ef45ef7eb30f45b3b6911a5e37"
+      },
+      "network": {
+        "name": "network",
+        "in": "query",
+        "required": false,
+        "description": "testnet (default) or mainnet. Mainnet reads the mainnet registry (read only); the sandbox runs on testnet only.",
+        "schema": {
+          "type": "string",
+          "enum": [
+            "testnet",
+            "mainnet"
+          ],
+          "default": "testnet"
+        }
+      }
+    },
+    "responses": {
+      "Error": {
+        "description": "Error. `refused_by: custody_registry` means the contract itself refused the call; `contract_error` is its error number.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ErrorResponse"
+            }
+          }
+        }
+      }
+    },
+    "schemas": {
+      "Shipment": {
+        "type": "object",
+        "properties": {
+          "key": {
+            "type": "string"
+          },
+          "registry": {
+            "type": "string",
+            "description": "custody_registry contract ID on testnet."
+          },
+          "registry_name": {
+            "type": "string",
+            "enum": [
+              "demo",
+              "three-machine",
+              "sandbox"
+            ]
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "Open",
+              "Delivered",
+              "Frozen"
+            ]
+          },
+          "current_custodian": {
+            "type": "string",
+            "description": "Stellar address of the company holding the goods now."
+          },
+          "route": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "seq": {
+            "type": "integer",
+            "description": "Handovers done so far."
+          },
+          "head": {
+            "type": "string",
+            "description": "Hash chain head: sha256 over every step so far."
+          },
+          "holder": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Set at delivery."
+          },
+          "token": {
+            "type": "string",
+            "description": "Asset contract the shipment names. Sandbox shipments name the native XLM contract as a placeholder."
+          }
+        }
+      },
+      "Tx": {
+        "type": "object",
+        "properties": {
+          "hash": {
+            "type": "string"
+          },
+          "explorer": {
+            "type": "string",
+            "format": "uri"
+          },
+          "signers": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "ShipmentResponse": {
+        "type": "object",
+        "properties": {
+          "network": {
+            "const": "testnet"
+          },
+          "source": {
+            "type": "string"
+          },
+          "shipment": {
+            "$ref": "#/components/schemas/Shipment"
+          },
+          "contract": {
+            "type": "string",
+            "format": "uri"
+          }
+        }
+      },
+      "WriteResponse": {
+        "type": "object",
+        "properties": {
+          "network": {
+            "const": "testnet"
+          },
+          "call": {
+            "type": "string",
+            "enum": [
+              "open",
+              "handover",
+              "deliver"
+            ]
+          },
+          "tx": {
+            "$ref": "#/components/schemas/Tx"
+          },
+          "shipment": {
+            "$ref": "#/components/schemas/Shipment"
+          }
+        }
+      },
+      "HistoryResponse": {
+        "type": "object",
+        "properties": {
+          "network": {
+            "const": "testnet"
+          },
+          "shipment": {
+            "$ref": "#/components/schemas/Shipment"
+          },
+          "steps": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "step": {
+                  "type": "string"
+                },
+                "hash": {
+                  "type": "string"
+                },
+                "explorer": {
+                  "type": "string"
+                },
+                "ledger": {
+                  "type": "integer"
+                },
+                "head_after": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "recomputed_head": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "head_matches": {
+            "type": [
+              "boolean",
+              "null"
+            ]
+          }
+        }
+      },
+      "ErrorResponse": {
+        "type": "object",
+        "properties": {
+          "network": {
+            "const": "testnet"
+          },
+          "error": {
+            "type": "object",
+            "properties": {
+              "code": {
+                "type": "string"
+              },
+              "message": {
+                "type": "string"
+              },
+              "refused_by": {
+                "type": "string",
+                "enum": [
+                  "custody_registry",
+                  "stellar"
+                ]
+              },
+              "contract_error": {
+                "type": "integer"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

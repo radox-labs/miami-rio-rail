@@ -1,0 +1,10 @@
+target/
+node_modules/
+.env
+.env.*
+.stellar/
+*.pem
+*.key
+.DS_Store
+/work/
+.vercel/

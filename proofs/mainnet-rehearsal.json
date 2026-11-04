@@ -1,0 +1,1369 @@
+{
+  "network": "mainnet fork (local, soroban-sim)",
+  "wasm_hash": "8230ed937f443e40054d0806c9cdd044ef341db19f0c1b3123c573adb7a41342",
+  "steps": [
+    {
+      "step": "upload_wasm",
+      "hash": "bfda4e915c8c9f410ae9e88b26ea2ed98847010397df7c8207f32da505675499",
+      "auth": []
+    },
+    {
+      "step": "deploy",
+      "hash": "652ae3c5e9bffd11432916585ea48f1593b2b33050db2a81c0ca76449f6c6d64",
+      "auth": [
+        "exporter"
+      ]
+    },
+    {
+      "step": "add_source",
+      "hash": "0ba738a30ab6ebac7ff99bf9f245bbdc2d88a83543b9eb492e3c4157f4c92ade",
+      "auth": [
+        "exporter"
+      ]
+    },
+    {
+      "step": "open",
+      "hash": "63abb8352861dd0b9e3b5dff02328d1e5947231b63649ca93c739a146da999a6",
+      "auth": [
+        "operator"
+      ]
+    },
+    {
+      "step": "handover_1",
+      "hash": "c446d48c546e674af12938b150129e024266cfe7d0c8a7c26f65cb51a5fdaf63",
+      "auth": [
+        "warehouse",
+        "port"
+      ]
+    },
+    {
+      "step": "handover_2",
+      "hash": "6b6226f0c2b35c538f4f46bc83debd569093d3cb028400815d4b97889a452173",
+      "auth": [
+        "port",
+        "carrier"
+      ]
+    },
+    {
+      "step": "attest",
+      "hash": "6f2785bb65ce6014a09be2d00e12495b74cd0c8ea1d1171c9a1c592a29b48002",
+      "auth": [
+        "source"
+      ]
+    },
+    {
+      "step": "handover_3",
+      "hash": "1989709f50829f3fab87b0ca2f2f0bb0a6ee590accd8ec6382b8ecf94d20aba5",
+      "auth": [
+        "carrier",
+        "customs"
+      ]
+    },
+    {
+      "step": "handover_4",
+      "hash": "e808cdfd1e44e36feabe0a3b9c9816c6a31b1eea4d48102b82c5cda5a0a206bd",
+      "auth": [
+        "customs",
+        "recipient"
+      ]
+    },
+    {
+      "step": "deliver",
+      "hash": "ffda4184377a7eec69a1e9a4f9d70edc9386b6c7eeca316e5bdd89a3f74654bc",
+      "auth": [
+        "recipient",
+        "holder"
+      ]
+    },
+    {
+      "step": "open_second",
+      "hash": "2e54f945fc563e53861ae3c15efe80a45eba1379d09e5dd868590a3929fa95f4",
+      "auth": [
+        "operator"
+      ]
+    },
+    {
+      "step": "freeze",
+      "hash": "f12198e0014472d18e04adf38d8dc2b8de344c637844e59b57849e33b26b1002",
+      "auth": [
+        "exporter"
+      ]
+    },
+    {
+      "step": "unfreeze",
+      "hash": "0e9311cc8c4f2123526c3d0e3e6314bfc79e32a3e0f9ae5890dab740c79e0ac4",
+      "auth": [
+        "exporter"
+      ]
+    },
+    {
+      "step": "pause",
+      "hash": "0b740b56b878b6789d37e17bd86c2a30c3b86b8128a08c7e0988c45cb04cc778",
+      "auth": [
+        "exporter"
+      ]
+    },
+    {
+      "step": "resume",
+      "hash": "66c8f44d0869392b2e948788fe280939740f514a1a50bd4b67c57dffc791ff18",
+      "auth": [
+        "exporter"
+      ]
+    }
+  ],
+  "failures": [
+    {
+      "case": "wrong_custodian",
+      "error": "HostError: Error(Contract, #1)"
+    },
+    {
+      "case": "out_of_route",
+      "error": "HostError: Error(Contract, #2)"
+    },
+    {
+      "case": "wrong_signer",
+      "error": "HostError: Error(Auth, InvalidAction)"
+    },
+    {
+      "case": "early_delivery",
+      "error": "HostError: Error(Contract, #10)"
+    },
+    {
+      "case": "bad_assurance",
+      "error": "HostError: Error(Contract, #13)"
+    },
+    {
+      "case": "duplicate_key",
+      "error": "HostError: Error(Contract, #4)"
+    },
+    {
+      "case": "after_freeze",
+      "error": "HostError: Error(Contract, #7)"
+    },
+    {
+      "case": "while_paused",
+      "error": "HostError: Error(Contract, #6)"
+    },
+    {
+      "case": "unknown_source",
+      "error": "HostError: Error(Contract, #5)"
+    }
+  ],
+  "custody_registry": "CBLQ2H47YIXOBOWPLEQOUEAQJ6Q4VO6VMCFD44ZY3VUV3BKES7TO2E26",
+  "final_status": "Delivered",
+  "final_head": "109d1ffa6b7d4f4f17f79e9d0da662239bd7732267bc711b8865794b49068ba5",
+  "report": {
+    "failures": [],
+    "files": [],
+    "markdown": "# Session report: RPC facade over mainnet\n\nEvery state change the tools made through the facade: transactions they sent and fork_* calls, in order. Reverted steps stay listed; the fees, diff and accounts describe the session as it ended.\n\n| | |\n|---|---|\n| Result | **passed** |\n| Network | mainnet (`Public Global Stellar Network ; September 2015`) |\n| Base | RPC https://mainnet.sorobanrpc.com (getLedgerEntries at its latest ledger) |\n| Fork | ledger 65137992, protocol 29, close time 1792975743, base fee 100 stroops, base reserve 0.5000000 XLM |\n| Host | soroban-env-host 29.0.2 (protocol 29) |\n| Transactions | 15 submitted: 15 applied, 0 failed (fee paid), 0 rejected |\n| Fees | 13.7249693 XLM charged, 2.0642229 XLM refunded |\n| Clock | ledger 65137993 → 65138008, close time 1792975743 → 1792975823 |\n| Overrides | 10 |\n| Final diff | 26 entries |\n\nFidelity:\n\n- Host-exact: contracts run in the same soroban-env-host release as the network's protocol, in enforcing mode, with a module cache, metered exactly as stellar-core's host, and every auth signature is verified.\n- Transaction layer: a port of stellar-core's checks (preconditions, sequence numbers, signature weights and thresholds, v1 and fee-bump envelopes, fee bid, resource fee and limits, balance above reserve, fee charged before apply, disk-read metering, rent and refund), checked against real mainnet and testnet transactions by `soroban-sim replay` (docs/replay.md).\n- Not modelled: classic operations (funding is an override), ExtendFootprintTtl and RestoreFootprint operations, several transactions per ledger, per-ledger limits and surge pricing (one ledger per transaction at the base fee), and core's PRNG seed.\n- A head fork reads RPC's latest ledger lazily (drift below lists any entry that changed after the fork ledger); a checkpoint fork rolls every read back to the fork ledger.\n- RPC facade: simulateTransaction runs against the session's state in the ledger the next transaction applies in (stellar-rpc simulates in its latest closed ledger), with stellar-rpc's resource padding and auth modes; sendTransaction validates and applies through the same session; getTransaction's meta is rebuilt from each touched entry's before and after values, not core's exact change list.\n\n## Overrides (10)\n\nEvery place this rehearsal departs from the base network.\n\n| # | Kind | Entry | Label | Change |\n|---|---|---|---|---|\n| 1 | funding | `GBTGBFNM7PSUR5XDSQGT35NH6UHF4LQAGUV7PLMNGT3UOLN6S2PUTRUQ` | fork_setBalance: exporter | new account with 1000000000 stroops |\n| 2 | funding | `GDXLP73DOPQXRSVW6UWJRSSHD3D2DQX6LNWRO3E4X7K4Q3ICFNNVUQJZ` | fork_setBalance: operator | new account with 1000000000 stroops |\n| 3 | funding | `GAT3R7KG4NGBV2CQM6DRVO3LSCKA5NNOHXVVCRV6MVEZWVCG3N5XEHUU` | fork_setBalance: holder | new account with 1000000000 stroops |\n| 4 | funding | `GAMIBFTFI5O6T7CKUQKN3U3HXJIPKC5UHQ4SSZ33FUCJAGXBJCBBTNPA` | fork_setBalance: warehouse | new account with 1000000000 stroops |\n| 5 | funding | `GAWAPI6LDQHVL3TDGYE2G56M3SWGB5L2AYW3TIUYMBXX5NYVEOJWY4YA` | fork_setBalance: port | new account with 1000000000 stroops |\n| 6 | funding | `GBNUVVG7FNOLWCJC6634DLL56E2ZBOG6F7WSKSRGCKVM4LBPEUYO25ZY` | fork_setBalance: carrier | new account with 1000000000 stroops |\n| 7 | funding | `GBRI7D4OV2LDPSY7ADFJHR4MNPLLT7JQ2O6K6WFUCX7ZGGCPL23ZCNZJ` | fork_setBalance: customs | new account with 1000000000 stroops |\n| 8 | funding | `GC2JGYMTYXCFFK2I2O3S2CSPRHQVN5LVPPPGCBI6GWGHRUXDYREECWUH` | fork_setBalance: recipient | new account with 1000000000 stroops |\n| 9 | funding | `GACCMGPQLCWJIVTAXX5ZODMIDFSKVTMMMP5KMGBCWS5GVXMTEXKGSMQV` | fork_setBalance: source | new account with 1000000000 stroops |\n| 10 | funding | `GAM2XHL3GWALXDPIQS7OFMVNGSBNMG224E5M7SR7UMCEDTMSAQCXQPJH` | fork_setBalance: stranger | new account with 1000000000 stroops |\n\n## Steps\n\n| # | Step | Ledger | Outcome | Fee charged (refund), XLM | CPU used / declared | Writes | Check |\n|---|---|---|---|---|---|---|---|\n| 1 | fork_setBalance: exporter | 65137993 | ok: new account with 1000000000 stroops |  |  |  | ✓ |\n| 2 | fork_setBalance: operator | 65137993 | ok: new account with 1000000000 stroops |  |  |  | ✓ |\n| 3 | fork_setBalance: holder | 65137993 | ok: new account with 1000000000 stroops |  |  |  | ✓ |\n| 4 | fork_setBalance: warehouse | 65137993 | ok: new account with 1000000000 stroops |  |  |  | ✓ |\n| 5 | fork_setBalance: port | 65137993 | ok: new account with 1000000000 stroops |  |  |  | ✓ |\n| 6 | fork_setBalance: carrier | 65137993 | ok: new account with 1000000000 stroops |  |  |  | ✓ |\n| 7 | fork_setBalance: customs | 65137993 | ok: new account with 1000000000 stroops |  |  |  | ✓ |\n| 8 | fork_setBalance: recipient | 65137993 | ok: new account with 1000000000 stroops |  |  |  | ✓ |\n| 9 | fork_setBalance: source | 65137993 | ok: new account with 1000000000 stroops |  |  |  | ✓ |\n| 10 | fork_setBalance: stranger | 65137993 | ok: new account with 1000000000 stroops |  |  |  | ✓ |\n| 11 | upload wasm 8230ed937f443e40054d0806c9cdd044ef341db19f0c1b3123c573adb7a41342 (10672 bytes) | 65137993 | applied: 8230ed937f443e40054d0806c9cdd044ef341db19f0c1b3123c573adb7a41342 | 13.4010850 (2.0103087) | 9689304 / 10078724 | 1 | ✓ |\n| 12 | deploy CBLQ2H47YIXOBOWPLEQOUEAQJ6Q4VO6VMCFD44ZY3VUV3BKES7TO2E26 from GBTGBFNM7PSUR5XDSQGT35NH6UHF4LQAGUV7PLMNGT3UOLN6S2PUTRUQ | 65137994 | applied: CBLQ2H47YIXOBOWPLEQOUEAQJ6Q4VO6VMCFD44ZY3VUV3BKES7TO2E26 | 0.0485279 (0.0077009) | 903108 / 960314 | 1 | ✓ |\n| 13 | CBLQ2H47YIXOBOWPLEQOUEAQJ6Q4VO6VMCFD44ZY3VUV3BKES7TO2E26.add_source | 65137995 | applied: () | 0.0231488 (0.0038997) | 558238 / 615481 | 1 | ✓ |\n| 14 | CBLQ2H47YIXOBOWPLEQOUEAQJ6Q4VO6VMCFD44ZY3VUV3BKES7TO2E26.open | 65137996 | applied: () | 0.1167129 (0.0179103) | 710745 / 769171 | 1 | ✓ |\n| 15 | CBLQ2H47YIXOBOWPLEQOUEAQJ6Q4VO6VMCFD44ZY3VUV3BKES7TO2E26.handover | 65137997 | applied: () | 0.0015427 (0.0005490) | 1788090 / 1889691 | 3 | ✓ |\n| 16 | CBLQ2H47YIXOBOWPLEQOUEAQJ6Q4VO6VMCFD44ZY3VUV3BKES7TO2E26.handover | 65137998 | applied: () | 0.0015427 (0.0005490) | 1788090 / 1889691 | 3 | ✓ |\n| 17 | CBLQ2H47YIXOBOWPLEQOUEAQJ6Q4VO6VMCFD44ZY3VUV3BKES7TO2E26.attest | 65137999 | applied: () | 0.0009998 (0.0005189) | 1292887 / 1373243 | 2 | ✓ |\n| 18 | CBLQ2H47YIXOBOWPLEQOUEAQJ6Q4VO6VMCFD44ZY3VUV3BKES7TO2E26.handover | 65138000 | applied: () | 0.0015427 (0.0005490) | 1788090 / 1889691 | 3 | ✓ |\n| 19 | CBLQ2H47YIXOBOWPLEQOUEAQJ6Q4VO6VMCFD44ZY3VUV3BKES7TO2E26.handover | 65138001 | applied: () | 0.0015427 (0.0005490) | 1788090 / 1889691 | 3 | ✓ |\n| 20 | CBLQ2H47YIXOBOWPLEQOUEAQJ6Q4VO6VMCFD44ZY3VUV3BKES7TO2E26.deliver | 65138002 | applied: () | 0.0094762 (0.0017437) | 1723386 / 1822705 | 3 | ✓ |\n| 21 | CBLQ2H47YIXOBOWPLEQOUEAQJ6Q4VO6VMCFD44ZY3VUV3BKES7TO2E26.open | 65138003 | applied: () | 0.1167129 (0.0179103) | 710745 / 769171 | 1 | ✓ |\n| 22 | CBLQ2H47YIXOBOWPLEQOUEAQJ6Q4VO6VMCFD44ZY3VUV3BKES7TO2E26.freeze | 65138004 | applied: () | 0.0010878 (0.0005868) | 698637 / 761050 | 1 | ✓ |\n| 23 | CBLQ2H47YIXOBOWPLEQOUEAQJ6Q4VO6VMCFD44ZY3VUV3BKES7TO2E26.unfreeze | 65138005 | applied: () | 0.0004199 (0.0004866) | 697161 / 759574 | 1 | ✓ |\n| 24 | CBLQ2H47YIXOBOWPLEQOUEAQJ6Q4VO6VMCFD44ZY3VUV3BKES7TO2E26.pause | 65138006 | applied: () | 0.0003138 (0.0004805) | 513532 / 567980 | 1 | ✓ |\n| 25 | CBLQ2H47YIXOBOWPLEQOUEAQJ6Q4VO6VMCFD44ZY3VUV3BKES7TO2E26.resume | 65138007 | applied: () | 0.0003135 (0.0004805) | 506878 / 559402 | 1 | ✓ |\n\n## Fees by payer\n\n| Account | Transactions | Charged, XLM | Refunded, XLM | Largest fee bid, XLM |\n|---|---|---|---|---|\n| `GBTGBFNM7PSUR5XDSQGT35NH6UHF4LQAGUV7PLMNGT3UOLN6S2PUTRUQ` | 7 | 13.4748967 | 2.0239437 | 15.9113837 |\n| `GDXLP73DOPQXRSVW6UWJRSSHD3D2DQX6LNWRO3E4X7K4Q3ICFNNVUQJZ` | 8 | 0.2500726 | 0.0402792 | 0.6346132 |\n\n## Accounts\n\n| Account | Balance before, XLM | Balance after, XLM | Sequence before → after | Overridden |\n|---|---|---|---|---|\n| `GACCMGPQLCWJIVTAXX5ZODMIDFSKVTMMMP5KMGBCWS5GVXMTEXKGSMQV` | — | 100.0000000 | — → 279765549662076928 | yes |\n| `GAMIBFTFI5O6T7CKUQKN3U3HXJIPKC5UHQ4SSZ33FUCJAGXBJCBBTNPA` | — | 100.0000000 | — → 279765549662076928 | yes |\n| `GAM2XHL3GWALXDPIQS7OFMVNGSBNMG224E5M7SR7UMCEDTMSAQCXQPJH` | — | 100.0000000 | — → 279765549662076928 | yes |\n| `GAT3R7KG4NGBV2CQM6DRVO3LSCKA5NNOHXVVCRV6MVEZWVCG3N5XEHUU` | — | 100.0000000 | — → 279765549662076928 | yes |\n| `GAWAPI6LDQHVL3TDGYE2G56M3SWGB5L2AYW3TIUYMBXX5NYVEOJWY4YA` | — | 100.0000000 | — → 279765549662076928 | yes |\n| `GBNUVVG7FNOLWCJC6634DLL56E2ZBOG6F7WSKSRGCKVM4LBPEUYO25ZY` | — | 100.0000000 | — → 279765549662076928 | yes |\n| `GBRI7D4OV2LDPSY7ADFJHR4MNPLLT7JQ2O6K6WFUCX7ZGGCPL23ZCNZJ` | — | 100.0000000 | — → 279765549662076928 | yes |\n| `GBTGBFNM7PSUR5XDSQGT35NH6UHF4LQAGUV7PLMNGT3UOLN6S2PUTRUQ` | — | 86.5251033 | — → 279765549662076935 | yes |\n| `GC2JGYMTYXCFFK2I2O3S2CSPRHQVN5LVPPPGCBI6GWGHRUXDYREECWUH` | — | 100.0000000 | — → 279765549662076928 | yes |\n| `GDXLP73DOPQXRSVW6UWJRSSHD3D2DQX6LNWRO3E4X7K4Q3ICFNNVUQJZ` | — | 99.7499274 | — → 279765549662076936 | yes |\n\n## Final diff vs the fork point (26 entries: 10 Account, 1 ContractCode, 15 ContractData)\n\n| Type | Entry | Change | Live until (before → after) | Override |\n|---|---|---|---|---|\n| Account | `GACCMGPQLCWJIVTAXX5ZODMIDFSKVTMMMP5KMGBCWS5GVXMTEXKGSMQV` | created |  | yes |\n| Account | `GAMIBFTFI5O6T7CKUQKN3U3HXJIPKC5UHQ4SSZ33FUCJAGXBJCBBTNPA` | created |  | yes |\n| Account | `GAM2XHL3GWALXDPIQS7OFMVNGSBNMG224E5M7SR7UMCEDTMSAQCXQPJH` | created |  | yes |\n| Account | `GAT3R7KG4NGBV2CQM6DRVO3LSCKA5NNOHXVVCRV6MVEZWVCG3N5XEHUU` | created |  | yes |\n| Account | `GAWAPI6LDQHVL3TDGYE2G56M3SWGB5L2AYW3TIUYMBXX5NYVEOJWY4YA` | created |  | yes |\n| Account | `GBNUVVG7FNOLWCJC6634DLL56E2ZBOG6F7WSKSRGCKVM4LBPEUYO25ZY` | created |  | yes |\n| Account | `GBRI7D4OV2LDPSY7ADFJHR4MNPLLT7JQ2O6K6WFUCX7ZGGCPL23ZCNZJ` | created |  | yes |\n| Account | `GBTGBFNM7PSUR5XDSQGT35NH6UHF4LQAGUV7PLMNGT3UOLN6S2PUTRUQ` | created |  | yes |\n| Account | `GC2JGYMTYXCFFK2I2O3S2CSPRHQVN5LVPPPGCBI6GWGHRUXDYREECWUH` | created |  | yes |\n| Account | `GDXLP73DOPQXRSVW6UWJRSSHD3D2DQX6LNWRO3E4X7K4Q3ICFNNVUQJZ` | created |  | yes |\n| ContractData | `GACCMGPQLCWJIVTAXX5ZODMIDFSKVTMMMP5KMGBCWS5GVXMTEXKGSMQV temporary LedgerKeyNonce(ScNonceKey { nonce: 715512491937142918 })` | created | — → 65155278 |  |\n| ContractData | `GAMIBFTFI5O6T7CKUQKN3U3HXJIPKC5UHQ4SSZ33FUCJAGXBJCBBTNPA temporary LedgerKeyNonce(ScNonceKey { nonce: 8434034863280405804 })` | created | — → 65155276 |  |\n| ContractData | `GAT3R7KG4NGBV2CQM6DRVO3LSCKA5NNOHXVVCRV6MVEZWVCG3N5XEHUU temporary LedgerKeyNonce(ScNonceKey { nonce: 6701983705969804507 })` | created | — → 65155281 |  |\n| ContractData | `GAWAPI6LDQHVL3TDGYE2G56M3SWGB5L2AYW3TIUYMBXX5NYVEOJWY4YA temporary LedgerKeyNonce(ScNonceKey { nonce: 81119065979169892 })` | created | — → 65155276 |  |\n| ContractData | `GAWAPI6LDQHVL3TDGYE2G56M3SWGB5L2AYW3TIUYMBXX5NYVEOJWY4YA temporary LedgerKeyNonce(ScNonceKey { nonce: 4105434242617606462 })` | created | — → 65155277 |  |\n| ContractData | `GBNUVVG7FNOLWCJC6634DLL56E2ZBOG6F7WSKSRGCKVM4LBPEUYO25ZY temporary LedgerKeyNonce(ScNonceKey { nonce: 2566270682383760236 })` | created | — → 65155277 |  |\n| ContractData | `GBNUVVG7FNOLWCJC6634DLL56E2ZBOG6F7WSKSRGCKVM4LBPEUYO25ZY temporary LedgerKeyNonce(ScNonceKey { nonce: 8709008497055925612 })` | created | — → 65155279 |  |\n| ContractData | `GBRI7D4OV2LDPSY7ADFJHR4MNPLLT7JQ2O6K6WFUCX7ZGGCPL23ZCNZJ temporary LedgerKeyNonce(ScNonceKey { nonce: 1056496478845253402 })` | created | — → 65155280 |  |\n| ContractData | `GBRI7D4OV2LDPSY7ADFJHR4MNPLLT7JQ2O6K6WFUCX7ZGGCPL23ZCNZJ temporary LedgerKeyNonce(ScNonceKey { nonce: 3715819144032200731 })` | created | — → 65155279 |  |\n| ContractData | `GC2JGYMTYXCFFK2I2O3S2CSPRHQVN5LVPPPGCBI6GWGHRUXDYREECWUH temporary LedgerKeyNonce(ScNonceKey { nonce: 926022671807927699 })` | created | — → 65155281 |  |\n| ContractData | `GC2JGYMTYXCFFK2I2O3S2CSPRHQVN5LVPPPGCBI6GWGHRUXDYREECWUH temporary LedgerKeyNonce(ScNonceKey { nonce: 9191880948463427601 })` | created | — → 65155280 |  |\n| ContractData | `CBLQ2H47YIXOBOWPLEQOUEAQJ6Q4VO6VMCFD44ZY3VUV3BKES7TO2E26 persistent Vec(Some(ScVec(VecM([Symbol(ScSymbol(StringM(Shipment))), Bytes(ScBytes(BytesM(0…` | created | — → 67211602 |  |\n| ContractData | `CBLQ2H47YIXOBOWPLEQOUEAQJ6Q4VO6VMCFD44ZY3VUV3BKES7TO2E26 persistent Vec(Some(ScVec(VecM([Symbol(ScSymbol(StringM(Shipment))), Bytes(ScBytes(BytesM(6…` | created | — → 67211595 |  |\n| ContractData | `CBLQ2H47YIXOBOWPLEQOUEAQJ6Q4VO6VMCFD44ZY3VUV3BKES7TO2E26 persistent Vec(Some(ScVec(VecM([Symbol(ScSymbol(StringM(Source))), Address(Account(AccountI…` | created | — → 67211594 |  |\n| ContractData | `CBLQ2H47YIXOBOWPLEQOUEAQJ6Q4VO6VMCFD44ZY3VUV3BKES7TO2E26 persistent instance` | created | — → 67211593 |  |\n| ContractCode | `code 8230ed937f443e40054d0806c9cdd044ef341db19f0c1b3123c573adb7a41342` | created | — → 67211592 |  |\n\n## Fork drift\n\nFork ledger 65137992. The base served fetches at ledgers 65137993 to 65137994. 0 fetched entries had been modified after the fork ledger.\n\n46 keys fetched (13 present) in 46 base calls; 48 RPC calls in all (0 throttled retries); 32 reads answered locally as session-created.\n\n## Safety\n\nThe session never submits anything, and rehearsal envelopes keep the real network id. Throwaway keys stand in for every real signer, so these envelopes are not valid on the real network unless a signer the network already has signed them. The facade keeps the real network passphrase, so a tool that signs with a real key makes an envelope valid on the real network; on mainnet the facade refuses such envelopes unless real signers are allowed.\n\nNo envelope was signed by a signer the base network already has.\n",
+    "passed": true,
+    "report": {
+      "accounts": [
+        {
+          "account": "GACCMGPQLCWJIVTAXX5ZODMIDFSKVTMMMP5KMGBCWS5GVXMTEXKGSMQV",
+          "balance_after": 1000000000,
+          "balance_before": null,
+          "overridden": true,
+          "seq_after": 279765549662076930,
+          "seq_before": null
+        },
+        {
+          "account": "GAMIBFTFI5O6T7CKUQKN3U3HXJIPKC5UHQ4SSZ33FUCJAGXBJCBBTNPA",
+          "balance_after": 1000000000,
+          "balance_before": null,
+          "overridden": true,
+          "seq_after": 279765549662076930,
+          "seq_before": null
+        },
+        {
+          "account": "GAM2XHL3GWALXDPIQS7OFMVNGSBNMG224E5M7SR7UMCEDTMSAQCXQPJH",
+          "balance_after": 1000000000,
+          "balance_before": null,
+          "overridden": true,
+          "seq_after": 279765549662076930,
+          "seq_before": null
+        },
+        {
+          "account": "GAT3R7KG4NGBV2CQM6DRVO3LSCKA5NNOHXVVCRV6MVEZWVCG3N5XEHUU",
+          "balance_after": 1000000000,
+          "balance_before": null,
+          "overridden": true,
+          "seq_after": 279765549662076930,
+          "seq_before": null
+        },
+        {
+          "account": "GAWAPI6LDQHVL3TDGYE2G56M3SWGB5L2AYW3TIUYMBXX5NYVEOJWY4YA",
+          "balance_after": 1000000000,
+          "balance_before": null,
+          "overridden": true,
+          "seq_after": 279765549662076930,
+          "seq_before": null
+        },
+        {
+          "account": "GBNUVVG7FNOLWCJC6634DLL56E2ZBOG6F7WSKSRGCKVM4LBPEUYO25ZY",
+          "balance_after": 1000000000,
+          "balance_before": null,
+          "overridden": true,
+          "seq_after": 279765549662076930,
+          "seq_before": null
+        },
+        {
+          "account": "GBRI7D4OV2LDPSY7ADFJHR4MNPLLT7JQ2O6K6WFUCX7ZGGCPL23ZCNZJ",
+          "balance_after": 1000000000,
+          "balance_before": null,
+          "overridden": true,
+          "seq_after": 279765549662076930,
+          "seq_before": null
+        },
+        {
+          "account": "GBTGBFNM7PSUR5XDSQGT35NH6UHF4LQAGUV7PLMNGT3UOLN6S2PUTRUQ",
+          "balance_after": 865251033,
+          "balance_before": null,
+          "overridden": true,
+          "seq_after": 279765549662076930,
+          "seq_before": null
+        },
+        {
+          "account": "GC2JGYMTYXCFFK2I2O3S2CSPRHQVN5LVPPPGCBI6GWGHRUXDYREECWUH",
+          "balance_after": 1000000000,
+          "balance_before": null,
+          "overridden": true,
+          "seq_after": 279765549662076930,
+          "seq_before": null
+        },
+        {
+          "account": "GDXLP73DOPQXRSVW6UWJRSSHD3D2DQX6LNWRO3E4X7K4Q3ICFNNVUQJZ",
+          "balance_after": 997499274,
+          "balance_before": null,
+          "overridden": true,
+          "seq_after": 279765549662076930,
+          "seq_before": null
+        }
+      ],
+      "diff": {
+        "by_type": {
+          "Account": 10,
+          "ContractCode": 1,
+          "ContractData": 15
+        },
+        "entries": [
+          {
+            "change": "created",
+            "key": "GACCMGPQLCWJIVTAXX5ZODMIDFSKVTMMMP5KMGBCWS5GVXMTEXKGSMQV",
+            "key_type": "Account",
+            "live_until_after": null,
+            "live_until_before": null,
+            "overridden": true
+          },
+          {
+            "change": "created",
+            "key": "GAMIBFTFI5O6T7CKUQKN3U3HXJIPKC5UHQ4SSZ33FUCJAGXBJCBBTNPA",
+            "key_type": "Account",
+            "live_until_after": null,
+            "live_until_before": null,
+            "overridden": true
+          },
+          {
+            "change": "created",
+            "key": "GAM2XHL3GWALXDPIQS7OFMVNGSBNMG224E5M7SR7UMCEDTMSAQCXQPJH",
+            "key_type": "Account",
+            "live_until_after": null,
+            "live_until_before": null,
+            "overridden": true
+          },
+          {
+            "change": "created",
+            "key": "GAT3R7KG4NGBV2CQM6DRVO3LSCKA5NNOHXVVCRV6MVEZWVCG3N5XEHUU",
+            "key_type": "Account",
+            "live_until_after": null,
+            "live_until_before": null,
+            "overridden": true
+          },
+          {
+            "change": "created",
+            "key": "GAWAPI6LDQHVL3TDGYE2G56M3SWGB5L2AYW3TIUYMBXX5NYVEOJWY4YA",
+            "key_type": "Account",
+            "live_until_after": null,
+            "live_until_before": null,
+            "overridden": true
+          },
+          {
+            "change": "created",
+            "key": "GBNUVVG7FNOLWCJC6634DLL56E2ZBOG6F7WSKSRGCKVM4LBPEUYO25ZY",
+            "key_type": "Account",
+            "live_until_after": null,
+            "live_until_before": null,
+            "overridden": true
+          },
+          {
+            "change": "created",
+            "key": "GBRI7D4OV2LDPSY7ADFJHR4MNPLLT7JQ2O6K6WFUCX7ZGGCPL23ZCNZJ",
+            "key_type": "Account",
+            "live_until_after": null,
+            "live_until_before": null,
+            "overridden": true
+          },
+          {
+            "change": "created",
+            "key": "GBTGBFNM7PSUR5XDSQGT35NH6UHF4LQAGUV7PLMNGT3UOLN6S2PUTRUQ",
+            "key_type": "Account",
+            "live_until_after": null,
+            "live_until_before": null,
+            "overridden": true
+          },
+          {
+            "change": "created",
+            "key": "GC2JGYMTYXCFFK2I2O3S2CSPRHQVN5LVPPPGCBI6GWGHRUXDYREECWUH",
+            "key_type": "Account",
+            "live_until_after": null,
+            "live_until_before": null,
+            "overridden": true
+          },
+          {
+            "change": "created",
+            "key": "GDXLP73DOPQXRSVW6UWJRSSHD3D2DQX6LNWRO3E4X7K4Q3ICFNNVUQJZ",
+            "key_type": "Account",
+            "live_until_after": null,
+            "live_until_before": null,
+            "overridden": true
+          },
+          {
+            "change": "created",
+            "key": "GACCMGPQLCWJIVTAXX5ZODMIDFSKVTMMMP5KMGBCWS5GVXMTEXKGSMQV temporary LedgerKeyNonce(ScNonceKey { nonce: 715512491937142918 })",
+            "key_type": "ContractData",
+            "live_until_after": 65155278,
+            "live_until_before": null,
+            "overridden": false
+          },
+          {
+            "change": "created",
+            "key": "GAMIBFTFI5O6T7CKUQKN3U3HXJIPKC5UHQ4SSZ33FUCJAGXBJCBBTNPA temporary LedgerKeyNonce(ScNonceKey { nonce: 8434034863280405804 })",
+            "key_type": "ContractData",
+            "live_until_after": 65155276,
+            "live_until_before": null,
+            "overridden": false
+          },
+          {
+            "change": "created",
+            "key": "GAT3R7KG4NGBV2CQM6DRVO3LSCKA5NNOHXVVCRV6MVEZWVCG3N5XEHUU temporary LedgerKeyNonce(ScNonceKey { nonce: 6701983705969804507 })",
+            "key_type": "ContractData",
+            "live_until_after": 65155281,
+            "live_until_before": null,
+            "overridden": false
+          },
+          {
+            "change": "created",
+            "key": "GAWAPI6LDQHVL3TDGYE2G56M3SWGB5L2AYW3TIUYMBXX5NYVEOJWY4YA temporary LedgerKeyNonce(ScNonceKey { nonce: 81119065979169892 })",
+            "key_type": "ContractData",
+            "live_until_after": 65155276,
+            "live_until_before": null,
+            "overridden": false
+          },
+          {
+            "change": "created",
+            "key": "GAWAPI6LDQHVL3TDGYE2G56M3SWGB5L2AYW3TIUYMBXX5NYVEOJWY4YA temporary LedgerKeyNonce(ScNonceKey { nonce: 4105434242617606462 })",
+            "key_type": "ContractData",
+            "live_until_after": 65155277,
+            "live_until_before": null,
+            "overridden": false
+          },
+          {
+            "change": "created",
+            "key": "GBNUVVG7FNOLWCJC6634DLL56E2ZBOG6F7WSKSRGCKVM4LBPEUYO25ZY temporary LedgerKeyNonce(ScNonceKey { nonce: 2566270682383760236 })",
+            "key_type": "ContractData",
+            "live_until_after": 65155277,
+            "live_until_before": null,
+            "overridden": false
+          },
+          {
+            "change": "created",
+            "key": "GBNUVVG7FNOLWCJC6634DLL56E2ZBOG6F7WSKSRGCKVM4LBPEUYO25ZY temporary LedgerKeyNonce(ScNonceKey { nonce: 8709008497055925612 })",
+            "key_type": "ContractData",
+            "live_until_after": 65155279,
+            "live_until_before": null,
+            "overridden": false
+          },
+          {
+            "change": "created",
+            "key": "GBRI7D4OV2LDPSY7ADFJHR4MNPLLT7JQ2O6K6WFUCX7ZGGCPL23ZCNZJ temporary LedgerKeyNonce(ScNonceKey { nonce: 1056496478845253402 })",
+            "key_type": "ContractData",
+            "live_until_after": 65155280,
+            "live_until_before": null,
+            "overridden": false
+          },
+          {
+            "change": "created",
+            "key": "GBRI7D4OV2LDPSY7ADFJHR4MNPLLT7JQ2O6K6WFUCX7ZGGCPL23ZCNZJ temporary LedgerKeyNonce(ScNonceKey { nonce: 3715819144032200731 })",
+            "key_type": "ContractData",
+            "live_until_after": 65155279,
+            "live_until_before": null,
+            "overridden": false
+          },
+          {
+            "change": "created",
+            "key": "GC2JGYMTYXCFFK2I2O3S2CSPRHQVN5LVPPPGCBI6GWGHRUXDYREECWUH temporary LedgerKeyNonce(ScNonceKey { nonce: 926022671807927699 })",
+            "key_type": "ContractData",
+            "live_until_after": 65155281,
+            "live_until_before": null,
+            "overridden": false
+          },
+          {
+            "change": "created",
+            "key": "GC2JGYMTYXCFFK2I2O3S2CSPRHQVN5LVPPPGCBI6GWGHRUXDYREECWUH temporary LedgerKeyNonce(ScNonceKey { nonce: 9191880948463427601 })",
+            "key_type": "ContractData",
+            "live_until_after": 65155280,
+            "live_until_before": null,
+            "overridden": false
+          },
+          {
+            "change": "created",
+            "key": "CBLQ2H47YIXOBOWPLEQOUEAQJ6Q4VO6VMCFD44ZY3VUV3BKES7TO2E26 persistent Vec(Some(ScVec(VecM([Symbol(ScSymbol(StringM(Shipment))), Bytes(ScBytes(BytesM(0…",
+            "key_type": "ContractData",
+            "live_until_after": 67211602,
+            "live_until_before": null,
+            "overridden": false
+          },
+          {
+            "change": "created",
+            "key": "CBLQ2H47YIXOBOWPLEQOUEAQJ6Q4VO6VMCFD44ZY3VUV3BKES7TO2E26 persistent Vec(Some(ScVec(VecM([Symbol(ScSymbol(StringM(Shipment))), Bytes(ScBytes(BytesM(6…",
+            "key_type": "ContractData",
+            "live_until_after": 67211595,
+            "live_until_before": null,
+            "overridden": false
+          },
+          {
+            "change": "created",
+            "key": "CBLQ2H47YIXOBOWPLEQOUEAQJ6Q4VO6VMCFD44ZY3VUV3BKES7TO2E26 persistent Vec(Some(ScVec(VecM([Symbol(ScSymbol(StringM(Source))), Address(Account(AccountI…",
+            "key_type": "ContractData",
+            "live_until_after": 67211594,
+            "live_until_before": null,
+            "overridden": false
+          },
+          {
+            "change": "created",
+            "key": "CBLQ2H47YIXOBOWPLEQOUEAQJ6Q4VO6VMCFD44ZY3VUV3BKES7TO2E26 persistent instance",
+            "key_type": "ContractData",
+            "live_until_after": 67211593,
+            "live_until_before": null,
+            "overridden": false
+          },
+          {
+            "change": "created",
+            "key": "code 8230ed937f443e40054d0806c9cdd044ef341db19f0c1b3123c573adb7a41342",
+            "key_type": "ContractCode",
+            "live_until_after": 67211592,
+            "live_until_before": null,
+            "overridden": false
+          }
+        ],
+        "total": 26
+      },
+      "differential": [],
+      "drift": {
+        "fork_ledger": 65137992,
+        "modified_after_fork": [],
+        "served_at_max": 65137994,
+        "served_at_min": 65137993
+      },
+      "end": {
+        "close_time": 1792975823,
+        "ledger": 65138008
+      },
+      "failures": [],
+      "fees": {
+        "applied": 15,
+        "by_payer": [
+          {
+            "account": "GBTGBFNM7PSUR5XDSQGT35NH6UHF4LQAGUV7PLMNGT3UOLN6S2PUTRUQ",
+            "charged": 134748967,
+            "max_fee_bid": 159113837,
+            "refunded": 20239437,
+            "transactions": 7
+          },
+          {
+            "account": "GDXLP73DOPQXRSVW6UWJRSSHD3D2DQX6LNWRO3E4X7K4Q3ICFNNVUQJZ",
+            "charged": 2500726,
+            "max_fee_bid": 6346132,
+            "refunded": 402792,
+            "transactions": 8
+          }
+        ],
+        "failed": 0,
+        "rejected": 0,
+        "total_charged": 137249693,
+        "total_refunded": 20642229,
+        "transactions": 15
+      },
+      "fetch": {
+        "base_fetch_calls": 46,
+        "keys_fetched": 46,
+        "keys_present": 13,
+        "local_answers": 32,
+        "rpc_calls": 48,
+        "throttled_retries": 0
+      },
+      "fidelity": [
+        "Host-exact: contracts run in the same soroban-env-host release as the network's protocol, in enforcing mode, with a module cache, metered exactly as stellar-core's host, and every auth signature is verified.",
+        "Transaction layer: a port of stellar-core's checks (preconditions, sequence numbers, signature weights and thresholds, v1 and fee-bump envelopes, fee bid, resource fee and limits, balance above reserve, fee charged before apply, disk-read metering, rent and refund), checked against real mainnet and testnet transactions by `soroban-sim replay` (docs/replay.md).",
+        "Not modelled: classic operations (funding is an override), ExtendFootprintTtl and RestoreFootprint operations, several transactions per ledger, per-ledger limits and surge pricing (one ledger per transaction at the base fee), and core's PRNG seed.",
+        "A head fork reads RPC's latest ledger lazily (drift below lists any entry that changed after the fork ledger); a checkpoint fork rolls every read back to the fork ledger.",
+        "RPC facade: simulateTransaction runs against the session's state in the ledger the next transaction applies in (stellar-rpc simulates in its latest closed ledger), with stellar-rpc's resource padding and auth modes; sendTransaction validates and applies through the same session; getTransaction's meta is rebuilt from each touched entry's before and after values, not core's exact change list."
+      ],
+      "fork": {
+        "base_fee": 100,
+        "base_reserve": 5000000,
+        "close_time": 1792975743,
+        "ledger": 65137992,
+        "protocol_version": 29
+      },
+      "format": "soroban-sim-session-report/1",
+      "host": {
+        "protocol_version": 29,
+        "soroban_env_host": "29.0.2"
+      },
+      "network": {
+        "base": "RPC https://mainnet.sorobanrpc.com (getLedgerEntries at its latest ledger)",
+        "name": "mainnet",
+        "passphrase": "Public Global Stellar Network ; September 2015"
+      },
+      "overrides": [
+        {
+          "at_ledger": 65137993,
+          "detail": "new account with 1000000000 stroops",
+          "entry": "GBTGBFNM7PSUR5XDSQGT35NH6UHF4LQAGUV7PLMNGT3UOLN6S2PUTRUQ",
+          "kind": "funding",
+          "label": "fork_setBalance: exporter"
+        },
+        {
+          "at_ledger": 65137993,
+          "detail": "new account with 1000000000 stroops",
+          "entry": "GDXLP73DOPQXRSVW6UWJRSSHD3D2DQX6LNWRO3E4X7K4Q3ICFNNVUQJZ",
+          "kind": "funding",
+          "label": "fork_setBalance: operator"
+        },
+        {
+          "at_ledger": 65137993,
+          "detail": "new account with 1000000000 stroops",
+          "entry": "GAT3R7KG4NGBV2CQM6DRVO3LSCKA5NNOHXVVCRV6MVEZWVCG3N5XEHUU",
+          "kind": "funding",
+          "label": "fork_setBalance: holder"
+        },
+        {
+          "at_ledger": 65137993,
+          "detail": "new account with 1000000000 stroops",
+          "entry": "GAMIBFTFI5O6T7CKUQKN3U3HXJIPKC5UHQ4SSZ33FUCJAGXBJCBBTNPA",
+          "kind": "funding",
+          "label": "fork_setBalance: warehouse"
+        },
+        {
+          "at_ledger": 65137993,
+          "detail": "new account with 1000000000 stroops",
+          "entry": "GAWAPI6LDQHVL3TDGYE2G56M3SWGB5L2AYW3TIUYMBXX5NYVEOJWY4YA",
+          "kind": "funding",
+          "label": "fork_setBalance: port"
+        },
+        {
+          "at_ledger": 65137993,
+          "detail": "new account with 1000000000 stroops",
+          "entry": "GBNUVVG7FNOLWCJC6634DLL56E2ZBOG6F7WSKSRGCKVM4LBPEUYO25ZY",
+          "kind": "funding",
+          "label": "fork_setBalance: carrier"
+        },
+        {
+          "at_ledger": 65137993,
+          "detail": "new account with 1000000000 stroops",
+          "entry": "GBRI7D4OV2LDPSY7ADFJHR4MNPLLT7JQ2O6K6WFUCX7ZGGCPL23ZCNZJ",
+          "kind": "funding",
+          "label": "fork_setBalance: customs"
+        },
+        {
+          "at_ledger": 65137993,
+          "detail": "new account with 1000000000 stroops",
+          "entry": "GC2JGYMTYXCFFK2I2O3S2CSPRHQVN5LVPPPGCBI6GWGHRUXDYREECWUH",
+          "kind": "funding",
+          "label": "fork_setBalance: recipient"
+        },
+        {
+          "at_ledger": 65137993,
+          "detail": "new account with 1000000000 stroops",
+          "entry": "GACCMGPQLCWJIVTAXX5ZODMIDFSKVTMMMP5KMGBCWS5GVXMTEXKGSMQV",
+          "kind": "funding",
+          "label": "fork_setBalance: source"
+        },
+        {
+          "at_ledger": 65137993,
+          "detail": "new account with 1000000000 stroops",
+          "entry": "GAM2XHL3GWALXDPIQS7OFMVNGSBNMG224E5M7SR7UMCEDTMSAQCXQPJH",
+          "kind": "funding",
+          "label": "fork_setBalance: stranger"
+        }
+      ],
+      "passed": true,
+      "plan": {
+        "description": "Every state change the tools made through the facade: transactions they sent and fork_* calls, in order. Reverted steps stay listed; the fees, diff and accounts describe the session as it ended.",
+        "name": "RPC facade over mainnet",
+        "path": "soroban-sim serve at http://127.0.0.1:8011"
+      },
+      "safety": {
+        "note": "The session never submits anything, and rehearsal envelopes keep the real network id. Throwaway keys stand in for every real signer, so these envelopes are not valid on the real network unless a signer the network already has signed them. The facade keeps the real network passphrase, so a tool that signs with a real key makes an envelope valid on the real network; on mainnet the facade refuses such envelopes unless real signers are allowed.",
+        "replayable": []
+      },
+      "steps": [
+        {
+          "close_time": 1792975748,
+          "detail": "new account with 1000000000 stroops",
+          "expected": null,
+          "index": 1,
+          "kind": "override",
+          "ledger": 65137993,
+          "name": "fork_setBalance: exporter",
+          "outcome": "ok",
+          "passed": true,
+          "saved": null,
+          "tx": null,
+          "value": null,
+          "value_scval": null
+        },
+        {
+          "close_time": 1792975748,
+          "detail": "new account with 1000000000 stroops",
+          "expected": null,
+          "index": 2,
+          "kind": "override",
+          "ledger": 65137993,
+          "name": "fork_setBalance: operator",
+          "outcome": "ok",
+          "passed": true,
+          "saved": null,
+          "tx": null,
+          "value": null,
+          "value_scval": null
+        },
+        {
+          "close_time": 1792975748,
+          "detail": "new account with 1000000000 stroops",
+          "expected": null,
+          "index": 3,
+          "kind": "override",
+          "ledger": 65137993,
+          "name": "fork_setBalance: holder",
+          "outcome": "ok",
+          "passed": true,
+          "saved": null,
+          "tx": null,
+          "value": null,
+          "value_scval": null
+        },
+        {
+          "close_time": 1792975748,
+          "detail": "new account with 1000000000 stroops",
+          "expected": null,
+          "index": 4,
+          "kind": "override",
+          "ledger": 65137993,
+          "name": "fork_setBalance: warehouse",
+          "outcome": "ok",
+          "passed": true,
+          "saved": null,
+          "tx": null,
+          "value": null,
+          "value_scval": null
+        },
+        {
+          "close_time": 1792975748,
+          "detail": "new account with 1000000000 stroops",
+          "expected": null,
+          "index": 5,
+          "kind": "override",
+          "ledger": 65137993,
+          "name": "fork_setBalance: port",
+          "outcome": "ok",
+          "passed": true,
+          "saved": null,
+          "tx": null,
+          "value": null,
+          "value_scval": null
+        },
+        {
+          "close_time": 1792975748,
+          "detail": "new account with 1000000000 stroops",
+          "expected": null,
+          "index": 6,
+          "kind": "override",
+          "ledger": 65137993,
+          "name": "fork_setBalance: carrier",
+          "outcome": "ok",
+          "passed": true,
+          "saved": null,
+          "tx": null,
+          "value": null,
+          "value_scval": null
+        },
+        {
+          "close_time": 1792975748,
+          "detail": "new account with 1000000000 stroops",
+          "expected": null,
+          "index": 7,
+          "kind": "override",
+          "ledger": 65137993,
+          "name": "fork_setBalance: customs",
+          "outcome": "ok",
+          "passed": true,
+          "saved": null,
+          "tx": null,
+          "value": null,
+          "value_scval": null
+        },
+        {
+          "close_time": 1792975748,
+          "detail": "new account with 1000000000 stroops",
+          "expected": null,
+          "index": 8,
+          "kind": "override",
+          "ledger": 65137993,
+          "name": "fork_setBalance: recipient",
+          "outcome": "ok",
+          "passed": true,
+          "saved": null,
+          "tx": null,
+          "value": null,
+          "value_scval": null
+        },
+        {
+          "close_time": 1792975748,
+          "detail": "new account with 1000000000 stroops",
+          "expected": null,
+          "index": 9,
+          "kind": "override",
+          "ledger": 65137993,
+          "name": "fork_setBalance: source",
+          "outcome": "ok",
+          "passed": true,
+          "saved": null,
+          "tx": null,
+          "value": null,
+          "value_scval": null
+        },
+        {
+          "close_time": 1792975748,
+          "detail": "new account with 1000000000 stroops",
+          "expected": null,
+          "index": 10,
+          "kind": "override",
+          "ledger": 65137993,
+          "name": "fork_setBalance: stranger",
+          "outcome": "ok",
+          "passed": true,
+          "saved": null,
+          "tx": null,
+          "value": null,
+          "value_scval": null
+        },
+        {
+          "close_time": 1792975748,
+          "detail": "8230ed937f443e40054d0806c9cdd044ef341db19f0c1b3123c573adb7a41342",
+          "expected": null,
+          "index": 11,
+          "kind": "transaction",
+          "ledger": 65137993,
+          "name": "upload wasm 8230ed937f443e40054d0806c9cdd044ef341db19f0c1b3123c573adb7a41342 (10672 bytes)",
+          "outcome": "applied",
+          "passed": true,
+          "saved": null,
+          "tx": {
+            "contract_errors": [],
+            "cpu_insns": 9689304,
+            "declared_cpu_insns": 10078724,
+            "declared_write_bytes": 10772,
+            "entries_written": 1,
+            "events": 0,
+            "events_fee": 98,
+            "fee_bid": 159113837,
+            "fee_charged": 134010850,
+            "hash": "bfda4e915c8c9f410ae9e88b26ea2ed98847010397df7c8207f32da505675499",
+            "inclusion_fee": 100,
+            "mem_bytes": 2404336,
+            "non_refundable_fee": 33269,
+            "refundable_fee": 154080568,
+            "refunded": 20103087,
+            "rent_fee": 133977383,
+            "replayable": [],
+            "resource_fee": 154113837,
+            "restored": 0,
+            "signers": [
+              "GBTGBFNM7PSUR5XDSQGT35NH6UHF4LQAGUV7PLMNGT3UOLN6S2PUTRUQ for GBTGBFNM7PSUR5XDSQGT35NH6UHF4LQAGUV7PLMNGT3UOLN6S2PUTRUQ (weight 1)"
+            ],
+            "source": "GBTGBFNM7PSUR5XDSQGT35NH6UHF4LQAGUV7PLMNGT3UOLN6S2PUTRUQ",
+            "write_bytes": 10772
+          },
+          "value": "8230ed937f443e40054d0806c9cdd044ef341db19f0c1b3123c573adb7a41342",
+          "value_scval": {
+            "bytes": "8230ed937f443e40054d0806c9cdd044ef341db19f0c1b3123c573adb7a41342"
+          }
+        },
+        {
+          "close_time": 1792975753,
+          "detail": "CBLQ2H47YIXOBOWPLEQOUEAQJ6Q4VO6VMCFD44ZY3VUV3BKES7TO2E26",
+          "expected": null,
+          "index": 12,
+          "kind": "transaction",
+          "ledger": 65137994,
+          "name": "deploy CBLQ2H47YIXOBOWPLEQOUEAQJ6Q4VO6VMCFD44ZY3VUV3BKES7TO2E26 from GBTGBFNM7PSUR5XDSQGT35NH6UHF4LQAGUV7PLMNGT3UOLN6S2PUTRUQ",
+          "outcome": "applied",
+          "passed": true,
+          "saved": null,
+          "tx": {
+            "contract_errors": [],
+            "cpu_insns": 903108,
+            "declared_cpu_insns": 960314,
+            "declared_write_bytes": 288,
+            "entries_written": 1,
+            "events": 0,
+            "events_fee": 98,
+            "fee_bid": 5562188,
+            "fee_charged": 485279,
+            "hash": "652ae3c5e9bffd11432916585ea48f1593b2b33050db2a81c0ca76449f6c6d64",
+            "inclusion_fee": 100,
+            "mem_bytes": 2460880,
+            "non_refundable_fee": 3810,
+            "refundable_fee": 558378,
+            "refunded": 77009,
+            "rent_fee": 481271,
+            "replayable": [],
+            "resource_fee": 562188,
+            "restored": 0,
+            "signers": [
+              "GBTGBFNM7PSUR5XDSQGT35NH6UHF4LQAGUV7PLMNGT3UOLN6S2PUTRUQ for GBTGBFNM7PSUR5XDSQGT35NH6UHF4LQAGUV7PLMNGT3UOLN6S2PUTRUQ (weight 1)"
+            ],
+            "source": "GBTGBFNM7PSUR5XDSQGT35NH6UHF4LQAGUV7PLMNGT3UOLN6S2PUTRUQ",
+            "write_bytes": 288
+          },
+          "value": "CBLQ2H47YIXOBOWPLEQOUEAQJ6Q4VO6VMCFD44ZY3VUV3BKES7TO2E26",
+          "value_scval": {
+            "address": "CBLQ2H47YIXOBOWPLEQOUEAQJ6Q4VO6VMCFD44ZY3VUV3BKES7TO2E26"
+          }
+        },
+        {
+          "close_time": 1792975758,
+          "detail": "()",
+          "expected": null,
+          "index": 13,
+          "kind": "transaction",
+          "ledger": 65137995,
+          "name": "CBLQ2H47YIXOBOWPLEQOUEAQJ6Q4VO6VMCFD44ZY3VUV3BKES7TO2E26.add_source",
+          "outcome": "applied",
+          "passed": true,
+          "saved": null,
+          "tx": {
+            "contract_errors": [],
+            "cpu_insns": 558238,
+            "declared_cpu_insns": 615481,
+            "declared_write_bytes": 136,
+            "entries_written": 1,
+            "events": 0,
+            "events_fee": 10,
+            "fee_bid": 5270385,
+            "fee_charged": 231488,
+            "hash": "0ba738a30ab6ebac7ff99bf9f245bbdc2d88a83543b9eb492e3c4157f4c92ade",
+            "inclusion_fee": 100,
+            "mem_bytes": 1243530,
+            "non_refundable_fee": 3440,
+            "refundable_fee": 266945,
+            "refunded": 38997,
+            "rent_fee": 227938,
+            "replayable": [],
+            "resource_fee": 270385,
+            "restored": 0,
+            "signers": [
+              "GBTGBFNM7PSUR5XDSQGT35NH6UHF4LQAGUV7PLMNGT3UOLN6S2PUTRUQ for GBTGBFNM7PSUR5XDSQGT35NH6UHF4LQAGUV7PLMNGT3UOLN6S2PUTRUQ (weight 1)"
+            ],
+            "source": "GBTGBFNM7PSUR5XDSQGT35NH6UHF4LQAGUV7PLMNGT3UOLN6S2PUTRUQ",
+            "write_bytes": 136
+          },
+          "value": "()",
+          "value_scval": "void"
+        },
+        {
+          "close_time": 1792975763,
+          "detail": "()",
+          "expected": null,
+          "index": 14,
+          "kind": "transaction",
+          "ledger": 65137996,
+          "name": "CBLQ2H47YIXOBOWPLEQOUEAQJ6Q4VO6VMCFD44ZY3VUV3BKES7TO2E26.open",
+          "outcome": "applied",
+          "passed": true,
+          "saved": null,
+          "tx": {
+            "contract_errors": [],
+            "cpu_insns": 710745,
+            "declared_cpu_insns": 769171,
+            "declared_write_bytes": 696,
+            "entries_written": 1,
+            "events": 1,
+            "events_fee": 733,
+            "fee_bid": 6346132,
+            "fee_charged": 1167129,
+            "hash": "63abb8352861dd0b9e3b5dff02328d1e5947231b63649ca93c739a146da999a6",
+            "inclusion_fee": 100,
+            "mem_bytes": 1252347,
+            "non_refundable_fee": 5025,
+            "refundable_fee": 1341107,
+            "refunded": 179103,
+            "rent_fee": 1161271,
+            "replayable": [],
+            "resource_fee": 1346132,
+            "restored": 0,
+            "signers": [
+              "GDXLP73DOPQXRSVW6UWJRSSHD3D2DQX6LNWRO3E4X7K4Q3ICFNNVUQJZ for GDXLP73DOPQXRSVW6UWJRSSHD3D2DQX6LNWRO3E4X7K4Q3ICFNNVUQJZ (weight 1)"
+            ],
+            "source": "GDXLP73DOPQXRSVW6UWJRSSHD3D2DQX6LNWRO3E4X7K4Q3ICFNNVUQJZ",
+            "write_bytes": 696
+          },
+          "value": "()",
+          "value_scval": "void"
+        },
+        {
+          "close_time": 1792975768,
+          "detail": "()",
+          "expected": null,
+          "index": 15,
+          "kind": "transaction",
+          "ledger": 65137997,
+          "name": "CBLQ2H47YIXOBOWPLEQOUEAQJ6Q4VO6VMCFD44ZY3VUV3BKES7TO2E26.handover",
+          "outcome": "applied",
+          "passed": true,
+          "saved": null,
+          "tx": {
+            "contract_errors": [],
+            "cpu_insns": 1788090,
+            "declared_cpu_insns": 1889691,
+            "declared_write_bytes": 848,
+            "entries_written": 3,
+            "events": 1,
+            "events_fee": 977,
+            "fee_bid": 5020817,
+            "fee_charged": 15427,
+            "hash": "c446d48c546e674af12938b150129e024266cfe7d0c8a7c26f65cb51a5fdaf63",
+            "inclusion_fee": 100,
+            "mem_bytes": 1296141,
+            "non_refundable_fee": 10753,
+            "refundable_fee": 10064,
+            "refunded": 5490,
+            "rent_fee": 3597,
+            "replayable": [],
+            "resource_fee": 20817,
+            "restored": 0,
+            "signers": [
+              "GDXLP73DOPQXRSVW6UWJRSSHD3D2DQX6LNWRO3E4X7K4Q3ICFNNVUQJZ for GDXLP73DOPQXRSVW6UWJRSSHD3D2DQX6LNWRO3E4X7K4Q3ICFNNVUQJZ (weight 1)"
+            ],
+            "source": "GDXLP73DOPQXRSVW6UWJRSSHD3D2DQX6LNWRO3E4X7K4Q3ICFNNVUQJZ",
+            "write_bytes": 848
+          },
+          "value": "()",
+          "value_scval": "void"
+        },
+        {
+          "close_time": 1792975773,
+          "detail": "()",
+          "expected": null,
+          "index": 16,
+          "kind": "transaction",
+          "ledger": 65137998,
+          "name": "CBLQ2H47YIXOBOWPLEQOUEAQJ6Q4VO6VMCFD44ZY3VUV3BKES7TO2E26.handover",
+          "outcome": "applied",
+          "passed": true,
+          "saved": null,
+          "tx": {
+            "contract_errors": [],
+            "cpu_insns": 1788090,
+            "declared_cpu_insns": 1889691,
+            "declared_write_bytes": 848,
+            "entries_written": 3,
+            "events": 1,
+            "events_fee": 977,
+            "fee_bid": 5020817,
+            "fee_charged": 15427,
+            "hash": "6b6226f0c2b35c538f4f46bc83debd569093d3cb028400815d4b97889a452173",
+            "inclusion_fee": 100,
+            "mem_bytes": 1296141,
+            "non_refundable_fee": 10753,
+            "refundable_fee": 10064,
+            "refunded": 5490,
+            "rent_fee": 3597,
+            "replayable": [],
+            "resource_fee": 20817,
+            "restored": 0,
+            "signers": [
+              "GDXLP73DOPQXRSVW6UWJRSSHD3D2DQX6LNWRO3E4X7K4Q3ICFNNVUQJZ for GDXLP73DOPQXRSVW6UWJRSSHD3D2DQX6LNWRO3E4X7K4Q3ICFNNVUQJZ (weight 1)"
+            ],
+            "source": "GDXLP73DOPQXRSVW6UWJRSSHD3D2DQX6LNWRO3E4X7K4Q3ICFNNVUQJZ",
+            "write_bytes": 848
+          },
+          "value": "()",
+          "value_scval": "void"
+        },
+        {
+          "close_time": 1792975778,
+          "detail": "()",
+          "expected": null,
+          "index": 17,
+          "kind": "transaction",
+          "ledger": 65137999,
+          "name": "CBLQ2H47YIXOBOWPLEQOUEAQJ6Q4VO6VMCFD44ZY3VUV3BKES7TO2E26.attest",
+          "outcome": "applied",
+          "passed": true,
+          "saved": null,
+          "tx": {
+            "contract_errors": [],
+            "cpu_insns": 1292887,
+            "declared_cpu_insns": 1373243,
+            "declared_write_bytes": 772,
+            "entries_written": 2,
+            "events": 1,
+            "events_fee": 772,
+            "fee_bid": 5015087,
+            "fee_charged": 9998,
+            "hash": "6f2785bb65ce6014a09be2d00e12495b74cd0c8ea1d1171c9a1c592a29b48002",
+            "inclusion_fee": 100,
+            "mem_bytes": 1277878,
+            "non_refundable_fee": 7327,
+            "refundable_fee": 7760,
+            "refunded": 5189,
+            "rent_fee": 1799,
+            "replayable": [],
+            "resource_fee": 15087,
+            "restored": 0,
+            "signers": [
+              "GDXLP73DOPQXRSVW6UWJRSSHD3D2DQX6LNWRO3E4X7K4Q3ICFNNVUQJZ for GDXLP73DOPQXRSVW6UWJRSSHD3D2DQX6LNWRO3E4X7K4Q3ICFNNVUQJZ (weight 1)"
+            ],
+            "source": "GDXLP73DOPQXRSVW6UWJRSSHD3D2DQX6LNWRO3E4X7K4Q3ICFNNVUQJZ",
+            "write_bytes": 772
+          },
+          "value": "()",
+          "value_scval": "void"
+        },
+        {
+          "close_time": 1792975783,
+          "detail": "()",
+          "expected": null,
+          "index": 18,
+          "kind": "transaction",
+          "ledger": 65138000,
+          "name": "CBLQ2H47YIXOBOWPLEQOUEAQJ6Q4VO6VMCFD44ZY3VUV3BKES7TO2E26.handover",
+          "outcome": "applied",
+          "passed": true,
+          "saved": null,
+          "tx": {
+            "contract_errors": [],
+            "cpu_insns": 1788090,
+            "declared_cpu_insns": 1889691,
+            "declared_write_bytes": 848,
+            "entries_written": 3,
+            "events": 1,
+            "events_fee": 977,
+            "fee_bid": 5020817,
+            "fee_charged": 15427,
+            "hash": "1989709f50829f3fab87b0ca2f2f0bb0a6ee590accd8ec6382b8ecf94d20aba5",
+            "inclusion_fee": 100,
+            "mem_bytes": 1296141,
+            "non_refundable_fee": 10753,
+            "refundable_fee": 10064,
+            "refunded": 5490,
+            "rent_fee": 3597,
+            "replayable": [],
+            "resource_fee": 20817,
+            "restored": 0,
+            "signers": [
+              "GDXLP73DOPQXRSVW6UWJRSSHD3D2DQX6LNWRO3E4X7K4Q3ICFNNVUQJZ for GDXLP73DOPQXRSVW6UWJRSSHD3D2DQX6LNWRO3E4X7K4Q3ICFNNVUQJZ (weight 1)"
+            ],
+            "source": "GDXLP73DOPQXRSVW6UWJRSSHD3D2DQX6LNWRO3E4X7K4Q3ICFNNVUQJZ",
+            "write_bytes": 848
+          },
+          "value": "()",
+          "value_scval": "void"
+        },
+        {
+          "close_time": 1792975788,
+          "detail": "()",
+          "expected": null,
+          "index": 19,
+          "kind": "transaction",
+          "ledger": 65138001,
+          "name": "CBLQ2H47YIXOBOWPLEQOUEAQJ6Q4VO6VMCFD44ZY3VUV3BKES7TO2E26.handover",
+          "outcome": "applied",
+          "passed": true,
+          "saved": null,
+          "tx": {
+            "contract_errors": [],
+            "cpu_insns": 1788090,
+            "declared_cpu_insns": 1889691,
+            "declared_write_bytes": 848,
+            "entries_written": 3,
+            "events": 1,
+            "events_fee": 977,
+            "fee_bid": 5020817,
+            "fee_charged": 15427,
+            "hash": "e808cdfd1e44e36feabe0a3b9c9816c6a31b1eea4d48102b82c5cda5a0a206bd",
+            "inclusion_fee": 100,
+            "mem_bytes": 1296141,
+            "non_refundable_fee": 10753,
+            "refundable_fee": 10064,
+            "refunded": 5490,
+            "rent_fee": 3597,
+            "replayable": [],
+            "resource_fee": 20817,
+            "restored": 0,
+            "signers": [
+              "GDXLP73DOPQXRSVW6UWJRSSHD3D2DQX6LNWRO3E4X7K4Q3ICFNNVUQJZ for GDXLP73DOPQXRSVW6UWJRSSHD3D2DQX6LNWRO3E4X7K4Q3ICFNNVUQJZ (weight 1)"
+            ],
+            "source": "GDXLP73DOPQXRSVW6UWJRSSHD3D2DQX6LNWRO3E4X7K4Q3ICFNNVUQJZ",
+            "write_bytes": 848
+          },
+          "value": "()",
+          "value_scval": "void"
+        },
+        {
+          "close_time": 1792975793,
+          "detail": "()",
+          "expected": null,
+          "index": 20,
+          "kind": "transaction",
+          "ledger": 65138002,
+          "name": "CBLQ2H47YIXOBOWPLEQOUEAQJ6Q4VO6VMCFD44ZY3VUV3BKES7TO2E26.deliver",
+          "outcome": "applied",
+          "passed": true,
+          "saved": null,
+          "tx": {
+            "contract_errors": [],
+            "cpu_insns": 1723386,
+            "declared_cpu_insns": 1822705,
+            "declared_write_bytes": 896,
+            "entries_written": 3,
+            "events": 1,
+            "events_fee": 625,
+            "fee_bid": 5112099,
+            "fee_charged": 94762,
+            "hash": "ffda4184377a7eec69a1e9a4f9d70edc9386b6c7eeca316e5bdd89a3f74654bc",
+            "inclusion_fee": 100,
+            "mem_bytes": 1287768,
+            "non_refundable_fee": 10440,
+            "refundable_fee": 101659,
+            "refunded": 17437,
+            "rent_fee": 83597,
+            "replayable": [],
+            "resource_fee": 112099,
+            "restored": 0,
+            "signers": [
+              "GDXLP73DOPQXRSVW6UWJRSSHD3D2DQX6LNWRO3E4X7K4Q3ICFNNVUQJZ for GDXLP73DOPQXRSVW6UWJRSSHD3D2DQX6LNWRO3E4X7K4Q3ICFNNVUQJZ (weight 1)"
+            ],
+            "source": "GDXLP73DOPQXRSVW6UWJRSSHD3D2DQX6LNWRO3E4X7K4Q3ICFNNVUQJZ",
+            "write_bytes": 896
+          },
+          "value": "()",
+          "value_scval": "void"
+        },
+        {
+          "close_time": 1792975798,
+          "detail": "()",
+          "expected": null,
+          "index": 21,
+          "kind": "transaction",
+          "ledger": 65138003,
+          "name": "CBLQ2H47YIXOBOWPLEQOUEAQJ6Q4VO6VMCFD44ZY3VUV3BKES7TO2E26.open",
+          "outcome": "applied",
+          "passed": true,
+          "saved": null,
+          "tx": {
+            "contract_errors": [],
+            "cpu_insns": 710745,
+            "declared_cpu_insns": 769171,
+            "declared_write_bytes": 696,
+            "entries_written": 1,
+            "events": 1,
+            "events_fee": 733,
+            "fee_bid": 6346132,
+            "fee_charged": 1167129,
+            "hash": "2e54f945fc563e53861ae3c15efe80a45eba1379d09e5dd868590a3929fa95f4",
+            "inclusion_fee": 100,
+            "mem_bytes": 1252347,
+            "non_refundable_fee": 5025,
+            "refundable_fee": 1341107,
+            "refunded": 179103,
+            "rent_fee": 1161271,
+            "replayable": [],
+            "resource_fee": 1346132,
+            "restored": 0,
+            "signers": [
+              "GDXLP73DOPQXRSVW6UWJRSSHD3D2DQX6LNWRO3E4X7K4Q3ICFNNVUQJZ for GDXLP73DOPQXRSVW6UWJRSSHD3D2DQX6LNWRO3E4X7K4Q3ICFNNVUQJZ (weight 1)"
+            ],
+            "source": "GDXLP73DOPQXRSVW6UWJRSSHD3D2DQX6LNWRO3E4X7K4Q3ICFNNVUQJZ",
+            "write_bytes": 696
+          },
+          "value": "()",
+          "value_scval": "void"
+        },
+        {
+          "close_time": 1792975803,
+          "detail": "()",
+          "expected": null,
+          "index": 22,
+          "kind": "transaction",
+          "ledger": 65138004,
+          "name": "CBLQ2H47YIXOBOWPLEQOUEAQJ6Q4VO6VMCFD44ZY3VUV3BKES7TO2E26.freeze",
+          "outcome": "applied",
+          "passed": true,
+          "saved": null,
+          "tx": {
+            "contract_errors": [],
+            "cpu_insns": 698637,
+            "declared_cpu_insns": 761050,
+            "declared_write_bytes": 700,
+            "entries_written": 1,
+            "events": 1,
+            "events_fee": 430,
+            "fee_bid": 5016646,
+            "fee_charged": 10878,
+            "hash": "f12198e0014472d18e04adf38d8dc2b8de344c637844e59b57849e33b26b1002",
+            "inclusion_fee": 100,
+            "mem_bytes": 1256413,
+            "non_refundable_fee": 3681,
+            "refundable_fee": 12965,
+            "refunded": 5868,
+            "rent_fee": 6667,
+            "replayable": [],
+            "resource_fee": 16646,
+            "restored": 0,
+            "signers": [
+              "GBTGBFNM7PSUR5XDSQGT35NH6UHF4LQAGUV7PLMNGT3UOLN6S2PUTRUQ for GBTGBFNM7PSUR5XDSQGT35NH6UHF4LQAGUV7PLMNGT3UOLN6S2PUTRUQ (weight 1)"
+            ],
+            "source": "GBTGBFNM7PSUR5XDSQGT35NH6UHF4LQAGUV7PLMNGT3UOLN6S2PUTRUQ",
+            "write_bytes": 700
+          },
+          "value": "()",
+          "value_scval": "void"
+        },
+        {
+          "close_time": 1792975808,
+          "detail": "()",
+          "expected": null,
+          "index": 23,
+          "kind": "transaction",
+          "ledger": 65138005,
+          "name": "CBLQ2H47YIXOBOWPLEQOUEAQJ6Q4VO6VMCFD44ZY3VUV3BKES7TO2E26.unfreeze",
+          "outcome": "applied",
+          "passed": true,
+          "saved": null,
+          "tx": {
+            "contract_errors": [],
+            "cpu_insns": 697161,
+            "declared_cpu_insns": 759574,
+            "declared_write_bytes": 696,
+            "entries_written": 1,
+            "events": 1,
+            "events_fee": 420,
+            "fee_bid": 5008965,
+            "fee_charged": 4199,
+            "hash": "0e9311cc8c4f2123526c3d0e3e6314bfc79e32a3e0f9ae5890dab740c79e0ac4",
+            "inclusion_fee": 100,
+            "mem_bytes": 1256431,
+            "non_refundable_fee": 3679,
+            "refundable_fee": 5286,
+            "refunded": 4866,
+            "rent_fee": 0,
+            "replayable": [],
+            "resource_fee": 8965,
+            "restored": 0,
+            "signers": [
+              "GBTGBFNM7PSUR5XDSQGT35NH6UHF4LQAGUV7PLMNGT3UOLN6S2PUTRUQ for GBTGBFNM7PSUR5XDSQGT35NH6UHF4LQAGUV7PLMNGT3UOLN6S2PUTRUQ (weight 1)"
+            ],
+            "source": "GBTGBFNM7PSUR5XDSQGT35NH6UHF4LQAGUV7PLMNGT3UOLN6S2PUTRUQ",
+            "write_bytes": 696
+          },
+          "value": "()",
+          "value_scval": "void"
+        },
+        {
+          "close_time": 1792975813,
+          "detail": "()",
+          "expected": null,
+          "index": 24,
+          "kind": "transaction",
+          "ledger": 65138006,
+          "name": "CBLQ2H47YIXOBOWPLEQOUEAQJ6Q4VO6VMCFD44ZY3VUV3BKES7TO2E26.pause",
+          "outcome": "applied",
+          "passed": true,
+          "saved": null,
+          "tx": {
+            "contract_errors": [],
+            "cpu_insns": 513532,
+            "declared_cpu_insns": 567980,
+            "declared_write_bytes": 288,
+            "entries_written": 1,
+            "events": 0,
+            "events_fee": 10,
+            "fee_bid": 5007843,
+            "fee_charged": 3138,
+            "hash": "0b740b56b878b6789d37e17bd86c2a30c3b86b8128a08c7e0988c45cb04cc778",
+            "inclusion_fee": 100,
+            "mem_bytes": 1241986,
+            "non_refundable_fee": 3028,
+            "refundable_fee": 4815,
+            "refunded": 4805,
+            "rent_fee": 0,
+            "replayable": [],
+            "resource_fee": 7843,
+            "restored": 0,
+            "signers": [
+              "GBTGBFNM7PSUR5XDSQGT35NH6UHF4LQAGUV7PLMNGT3UOLN6S2PUTRUQ for GBTGBFNM7PSUR5XDSQGT35NH6UHF4LQAGUV7PLMNGT3UOLN6S2PUTRUQ (weight 1)"
+            ],
+            "source": "GBTGBFNM7PSUR5XDSQGT35NH6UHF4LQAGUV7PLMNGT3UOLN6S2PUTRUQ",
+            "write_bytes": 288
+          },
+          "value": "()",
+          "value_scval": "void"
+        },
+        {
+          "close_time": 1792975818,
+          "detail": "()",
+          "expected": null,
+          "index": 25,
+          "kind": "transaction",
+          "ledger": 65138007,
+          "name": "CBLQ2H47YIXOBOWPLEQOUEAQJ6Q4VO6VMCFD44ZY3VUV3BKES7TO2E26.resume",
+          "outcome": "applied",
+          "passed": true,
+          "saved": null,
+          "tx": {
+            "contract_errors": [],
+            "cpu_insns": 506878,
+            "declared_cpu_insns": 559402,
+            "declared_write_bytes": 288,
+            "entries_written": 1,
+            "events": 0,
+            "events_fee": 10,
+            "fee_bid": 5007840,
+            "fee_charged": 3135,
+            "hash": "66c8f44d0869392b2e948788fe280939740f514a1a50bd4b67c57dffc791ff18",
+            "inclusion_fee": 100,
+            "mem_bytes": 1240655,
+            "non_refundable_fee": 3025,
+            "refundable_fee": 4815,
+            "refunded": 4805,
+            "rent_fee": 0,
+            "replayable": [],
+            "resource_fee": 7840,
+            "restored": 0,
+            "signers": [
+              "GBTGBFNM7PSUR5XDSQGT35NH6UHF4LQAGUV7PLMNGT3UOLN6S2PUTRUQ for GBTGBFNM7PSUR5XDSQGT35NH6UHF4LQAGUV7PLMNGT3UOLN6S2PUTRUQ (weight 1)"
+            ],
+            "source": "GBTGBFNM7PSUR5XDSQGT35NH6UHF4LQAGUV7PLMNGT3UOLN6S2PUTRUQ",
+            "write_bytes": 288
+          },
+          "value": "()",
+          "value_scval": "void"
+        }
+      ]
+    }
+  }
+}

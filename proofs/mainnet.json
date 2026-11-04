@@ -1,0 +1,92 @@
+{
+  "network": "mainnet",
+  "passphrase": "Public Global Stellar Network ; September 2015",
+  "rpc": "https://mainnet.sorobanrpc.com",
+  "wasm_hash": "8230ed937f443e40054d0806c9cdd044ef341db19f0c1b3123c573adb7a41342",
+  "admin": "GAL7VXHAVJKBHOEWKTL3QIJTRUG47ZCY65QZC75FDUOWFPB5ACKPHMGU",
+  "operator": "GBNKNDKT7T3PKT7ZLG2PU7KI5ZHYK6JX3AVTHQ4DAYBCU6KJHQ4WFELA",
+  "container": "RAIL9093723",
+  "key": "5dc2e39a8560dd99f19ec5034431b5e1ae979f5941969bbdb6f86fcd25656b2d",
+  "actors": {
+    "admin": "GAL7VXHAVJKBHOEWKTL3QIJTRUG47ZCY65QZC75FDUOWFPB5ACKPHMGU",
+    "operator": "GBNKNDKT7T3PKT7ZLG2PU7KI5ZHYK6JX3AVTHQ4DAYBCU6KJHQ4WFELA",
+    "warehouse": "GAAYMTU2IFVWMWFYSPMDDSKAAXOFHKAQQACIMV6JNRAGUDAWYZRE4MGS",
+    "trucker": "GDDIUUMURZE2JQTWFYOK7OSDX6C5FSAKVIOQWGWKJSB6SGIOZ7Z4WTSK",
+    "ship": "GB3XLRZOAY3APASGFX4S5FLECBUVF5TRLERUWQ4MIHXOB66GVQOWJTUI",
+    "customs": "GAXCHSLZZJXXNHPUOGBE6TOKDFYOHDUWOWFSBHW25NRY5VRZLRRZ2VCB",
+    "buyer": "GCQRQRARKCOY46QGYJ6CXPXLCMUMQDJC6IYRPLNNXHTMWQXGXPSNMQJG",
+    "holder": "GDBSZ676Y6TWCYBZYLWBWTEL52SVLOBSCQFPRQX6W2OFR5OWM2YUTVOD"
+  },
+  "steps": [
+    {
+      "step": "create_accounts",
+      "hash": "2c13b9c4fb36b67341a045d834cd390489f5ba04af09cf006a0f3aaf02ffeb67",
+      "auth": [
+        "admin"
+      ]
+    },
+    {
+      "step": "upload_wasm",
+      "hash": "4f108aca2f570995f08d1fd0cdb4a93ddcc945177dbb8b47d8c3d61e1aa60970",
+      "auth": []
+    },
+    {
+      "step": "deploy",
+      "hash": "f481387089e395e8e64f038aee3b00a672708bec76b421b472f2dbdc3435604a",
+      "auth": [
+        "admin"
+      ]
+    },
+    {
+      "step": "open",
+      "hash": "d5725a51bef810b21986cdde5326640381f1fccb726b80215b48a21ee450c69a",
+      "auth": [
+        "operator"
+      ]
+    },
+    {
+      "step": "handover_1",
+      "hash": "f8f7000e60579e7cbd2974c984920afdd9bb973d264347a59e63988c5baf98b5",
+      "auth": [
+        "warehouse",
+        "trucker"
+      ]
+    },
+    {
+      "step": "handover_2",
+      "hash": "846500d1e4fcca5d730b667e396f17769e2a60e922f21cc9ff4dd500f613ea38",
+      "auth": [
+        "trucker",
+        "ship"
+      ]
+    },
+    {
+      "step": "handover_3",
+      "hash": "a506fc2133a21097a4d52558d857581f3d07c47fabc5f7742cd9f260e0a916a0",
+      "auth": [
+        "ship",
+        "customs"
+      ]
+    },
+    {
+      "step": "handover_4",
+      "hash": "dcb66a4b2707fc8f3c842d752bd378a0d201b81b4ea48cfb14254a21d029195a",
+      "auth": [
+        "customs",
+        "buyer"
+      ]
+    },
+    {
+      "step": "deliver",
+      "hash": "59397ee9a36208c39818b3a58740e901d938b9582a8315d2e59ee52802f62a68",
+      "auth": [
+        "buyer",
+        "holder"
+      ]
+    }
+  ],
+  "custody_registry": "CDV7YI7KYTDH4LPOLVUVRTFERJKYOWBBT6KS56ZX3V7EOGDBWS7LD4UP",
+  "final_status": "Delivered",
+  "final_seq": 4,
+  "final_head": "ef42c3f4d626232e371af80e3dd1859e8c3f6140609c7ae4d217c87c2397413b"
+}

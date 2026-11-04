@@ -1,0 +1,56 @@
+{
+  "network": "testnet",
+  "custody_registry": "CD7BUCY3DC7GTHRWFRBHNOFPMGVCHFDL4LHKXZNGEJISSGHI24KSNH3F",
+  "token": "CBCWTIT5YNPNSA4ZSJJXUFZKGQROZPWNWYNZ4CSO7HLWJXU7Z6N5Q22Z",
+  "shipment": {
+    "container": "TEST6109555",
+    "origin": "BRRIO",
+    "key": "8f32b176a54847894c05b6a60b4400fb7e185c4f28d025f993a56a5639113aae",
+    "docs_root": "4c8c19c179118ecd1473fac669c76f26453e207f2f423da2e6097d2eb3ae633e",
+    "route": [
+      "GAVDGEJFRQ4O2XQD7RTDJ5UJWDQ252ZFP6FIBFOV4PE3CM4GBYPH5UTZ",
+      "GDWNU6TTJCZOQ3ZQI5NYALATL7IVMHR4PWEP5E3TXEK7EKOJNDORTPPW",
+      "GAUKDWMR5EZWVG46O7OREZQ7ZY37NSHTFMT3US3RYICYT3HOJL4UCEFR",
+      "GD54SSZGLU6QXILEBQMJZ5F5IW35UELJN3FEKC77ZE23BXK5BHPV2CO4"
+    ],
+    "final_head": "d9cf3a5fef54e57c9202ed73c40ca40ca666bf80f0f6e96b26a008134aa9614d"
+  },
+  "actors": {
+    "operator": "GCOFS2CFUHQVZXRNCMNOQFFQJ4XGEKV4Z2SYNRZALOJWDC6DUAXIASXN",
+    "warehouse": "GAVDGEJFRQ4O2XQD7RTDJ5UJWDQ252ZFP6FIBFOV4PE3CM4GBYPH5UTZ",
+    "leo": "GDWNU6TTJCZOQ3ZQI5NYALATL7IVMHR4PWEP5E3TXEK7EKOJNDORTPPW",
+    "vhendala": "GAUKDWMR5EZWVG46O7OREZQ7ZY37NSHTFMT3US3RYICYT3HOJL4UCEFR",
+    "recipient": "GD54SSZGLU6QXILEBQMJZ5F5IW35UELJN3FEKC77ZE23BXK5BHPV2CO4",
+    "holder": "GDL4562QI74B7KXR6ICIUEA3ZLS4V3QNTRE7G6LKY2MEAZ4VW5EUWBSK"
+  },
+  "setup": [
+    {
+      "step": "custody_registry_deploy",
+      "hash": "7d2c30d874bc4f115f42ffd010934e6d7dc4b52d3a7a590a7211a92a2808a829"
+    }
+  ],
+  "lifecycle": [
+    {
+      "step": "open",
+      "hash": "34860ed882b95a737606268714e7c84c3d1c742a3c79bdf38e458a0bae87d468"
+    },
+    {
+      "step": "handover",
+      "hash": "861544e40a137a89b2ae209d8efaf81b973d4cd451686c5c441a7a16b3d90afb"
+    },
+    {
+      "step": "handover",
+      "hash": "9214980ea8f3923ca0e036a803517dba2b3d1c1a12d8e5cbb481f31625eb7c0c"
+    },
+    {
+      "step": "handover",
+      "hash": "850da3429eb00af3f752dfe4804bd506acbc19f0aebe194402fb7b4fbd260e33"
+    },
+    {
+      "step": "deliver",
+      "hash": "849c268d0d84c414cfb1e0634c4967f811ee7bb08c3d72e8255cb75e78b52720"
+    }
+  ],
+  "attest": [],
+  "authorisation": "handover 1: warehouse + leo; handover 2: leo + vhendala; handover 3: vhendala + recipient; deliver: recipient + holder. leo and vhendala signed their entries on their own computers."
+}

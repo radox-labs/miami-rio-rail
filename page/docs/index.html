@@ -1,0 +1,353 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Radox Rail API</title>
+<meta name="description" content="Open API for Radox Rail on Stellar testnet: read who holds a shipment, and try dual-signed handovers in a sandbox with no keys.">
+<link rel="preload" href="/fonts/inter-latin-700-normal.woff2" as="font" type="font/woff2" crossorigin>
+<style>
+  @font-face { font-family: 'Inter'; font-weight: 400; font-display: swap; src: url(/fonts/inter-latin-400-normal.woff2) format("woff2"); }
+  @font-face { font-family: 'Inter'; font-weight: 600; font-display: swap; src: url(/fonts/inter-latin-600-normal.woff2) format("woff2"); }
+  @font-face { font-family: 'Inter'; font-weight: 700; font-display: swap; src: url(/fonts/inter-latin-700-normal.woff2) format("woff2"); }
+  :root {
+    --background: 220 10% 6%; --foreground: 220 7% 91%;
+    --card: 210 10% 8%; --muted: 216 10% 10%;
+    --muted-foreground: 219 7% 57%; --border: 216 14% 14%;
+    --primary: 76 86% 63%; --primary-foreground: 220 10% 6%; --ring: 76 86% 63%;
+    --radius: 0.625rem; --font-body: 'Inter', system-ui, sans-serif;
+    --mono: ui-monospace, SFMono-Regular, Menlo, monospace;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: radial-gradient(ellipse at 80% 0%, hsl(216 10% 11%), hsl(var(--background)) 60%) fixed; color: hsl(var(--foreground)); font-family: var(--font-body); font-size: 16px; line-height: 1.55; font-variant-numeric: tabular-nums; }
+  a { color: hsl(var(--foreground)); text-decoration-color: hsl(var(--primary)); text-underline-offset: 3px; overflow-wrap: anywhere; }
+  a:focus-visible, button:focus-visible { outline: 2px solid hsl(var(--ring)); outline-offset: 3px; }
+  header { position: sticky; top: 0; z-index: 5; display: flex; justify-content: space-between; align-items: center; gap: 1rem; padding: 1rem clamp(1rem, 4vw, 3rem); background: hsl(var(--background) / .85); backdrop-filter: blur(8px); border-bottom: 1px solid hsl(var(--border)); }
+  .brand { font-weight: 700; letter-spacing: -0.01em; text-decoration: none; }
+  .brand i { font-style: normal; color: hsl(var(--primary)); }
+  nav { display: flex; gap: 1.2rem; font-size: 14px; flex-wrap: wrap; }
+  nav a { text-decoration: none; color: hsl(var(--muted-foreground)); }
+  nav a:hover { color: hsl(var(--foreground)); }
+  .label { border: 1px solid hsl(var(--border)); border-radius: var(--radius); padding: .15rem .6rem; font-size: 12px; color: hsl(var(--muted-foreground)); }
+  main { max-width: 1120px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 3rem) 4rem; }
+  .hero { padding: 3.5rem 0 1.5rem; max-width: 46rem; }
+  h1 { margin: 0 0 .8rem; font-size: clamp(34px, 5vw, 56px); font-weight: 700; letter-spacing: -0.035em; line-height: 1.04; }
+  h2 { margin: 3.5rem 0 1rem; font-size: clamp(24px, 3vw, 32px); letter-spacing: -0.02em; }
+  h3 { margin: 1.6rem 0 .5rem; font-size: 17px; }
+  p, li { color: hsl(var(--muted-foreground)); }
+  .lead { font-size: clamp(17px, 1.6vw, 20px); }
+  strong { color: hsl(var(--foreground)); }
+  code { font-family: var(--mono); font-size: .9em; color: hsl(var(--foreground)); }
+
+  /* Try the API */
+  .try { border: 1px solid hsl(var(--border)); border-radius: 14px; background: hsl(var(--card) / .95); box-shadow: 0 30px 80px hsl(0 0% 0% / .45); overflow: hidden; }
+  .tryhead { display: flex; justify-content: space-between; align-items: center; padding: .8rem 1.1rem; border-bottom: 1px solid hsl(var(--border)); }
+  .badge { font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: hsl(var(--primary)); }
+  .tag { font-size: 12px; color: #A8ABB0; border: 1px solid hsl(var(--border)); border-radius: 999px; padding: .1rem .6rem; }
+  .tag.live { color: hsl(var(--primary)); border-color: hsl(var(--primary)); }
+  .route { display: flex; justify-content: space-between; position: relative; padding: 1.4rem 1.1rem .4rem; }
+  .route::before { content: ""; position: absolute; left: 10%; right: 10%; top: 2.65rem; height: 1px; background: hsl(var(--border)); }
+  .stop { position: relative; display: flex; flex-direction: column; align-items: center; gap: .35rem; width: 20%; font-size: 12.5px; color: #A8ABB0; transition: color .3s; }
+  .stop .disc { width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; background: hsl(var(--card)); box-shadow: inset 0 0 0 1px #303740; font-weight: 700; font-size: 13px; transition: box-shadow .3s, background .3s, color .3s; }
+  .stop.done { color: hsl(var(--foreground)); }
+  .stop.done .disc { box-shadow: inset 0 0 0 2px hsl(var(--primary) / .5); }
+  .stop.here { color: hsl(var(--foreground)); font-weight: 600; }
+  .stop.here .disc { background: hsl(var(--primary)); color: hsl(var(--primary-foreground)); box-shadow: 0 0 22px hsl(var(--primary) / .55); }
+  .actions { display: flex; gap: .6rem; flex-wrap: wrap; padding: 1rem 1.1rem; }
+  button { min-height: 44px; padding: 0 1.1rem; border: 0; border-radius: var(--radius); background: hsl(var(--primary)); color: hsl(var(--primary-foreground)); font: 600 15px var(--font-body); cursor: pointer; white-space: nowrap; }
+  button.ghost { background: transparent; color: hsl(var(--foreground)); box-shadow: inset 0 0 0 1px #303740; }
+  button.ghost:hover:not(:disabled) { box-shadow: inset 0 0 0 1px hsl(var(--primary)); color: hsl(var(--primary)); }
+  button:disabled { opacity: .4; cursor: not-allowed; }
+  button.busy { cursor: progress; opacity: .7; }
+  button:active:not(:disabled) { transform: scale(.97); }
+  .panes { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr); border-top: 1px solid hsl(var(--border)); }
+  .pane { padding: 1rem 1.1rem 1.2rem; min-width: 0; }
+  .pane + .pane { border-left: 1px solid hsl(var(--border)); }
+  .pane h4 { margin: 0 0 .5rem; font-size: 12px; letter-spacing: .1em; text-transform: uppercase; color: hsl(var(--muted-foreground)); display: flex; justify-content: space-between; align-items: center; gap: .5rem; }
+  pre { margin: 0; font: 13px/1.55 var(--mono); color: hsl(var(--foreground)); white-space: pre-wrap; overflow-wrap: anywhere; }
+  .resp { max-height: 360px; overflow: auto; }
+  .resp .k { color: #A8ABB0; }
+  .status { font: 600 12px var(--mono); padding: .05rem .5rem; border-radius: 6px; border: 1px solid hsl(var(--border)); color: hsl(var(--foreground)); text-transform: none; letter-spacing: 0; }
+  .status.ok { background: hsl(var(--primary)); color: hsl(var(--primary-foreground)); border-color: transparent; }
+  .status.bad { border-color: hsl(var(--foreground)); }
+  .txline { display: flex; flex-wrap: wrap; gap: .4rem 1rem; align-items: center; padding: .8rem 1.1rem; border-top: 1px solid hsl(var(--border)); font-size: 14px; min-height: 3.2rem; }
+  .txline a { font-weight: 600; }
+  .txline .hash { font: 13px var(--mono); color: hsl(var(--muted-foreground)); }
+  .wait { color: hsl(var(--primary)); }
+  @keyframes blink { 50% { opacity: .35; } }
+  .wait::after { content: " ●"; animation: blink 1s infinite; }
+
+  /* reference */
+  .steps { counter-reset: s; list-style: none; padding: 0; margin: 0; display: grid; gap: 1rem; }
+  .steps > li { counter-increment: s; border: 1px solid hsl(var(--border)); border-radius: var(--radius); background: hsl(var(--card) / .8); padding: 1rem 1.1rem; }
+  .steps > li::before { content: counter(s); display: inline-grid; place-items: center; width: 24px; height: 24px; border-radius: 50%; background: hsl(var(--primary)); color: hsl(var(--primary-foreground)); font-weight: 700; font-size: 13px; margin-right: .6rem; }
+  .steps > li > strong { font-size: 16px; }
+  .code { position: relative; margin: .7rem 0 0; border: 1px solid hsl(var(--border)); border-radius: 8px; background: hsl(var(--background)); }
+  .code pre { padding: .8rem 4.8rem .8rem .9rem; }
+  .copy { position: absolute; top: .45rem; right: .45rem; min-height: 30px; padding: 0 .7rem; font-size: 12px; background: hsl(var(--muted)); color: hsl(var(--foreground)); box-shadow: inset 0 0 0 1px #303740; }
+  table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  th, td { text-align: left; padding: .55rem .6rem; border-bottom: 1px solid hsl(var(--border)); vertical-align: top; }
+  th { color: hsl(var(--muted-foreground)); font-weight: 600; font-size: 12px; letter-spacing: .06em; text-transform: uppercase; }
+  td { color: hsl(var(--muted-foreground)); }
+  td:first-child { white-space: nowrap; }
+  .tablewrap { overflow-x: auto; }
+  .method { font: 700 12px var(--mono); padding: .1rem .45rem; border-radius: 5px; background: hsl(var(--muted)); color: hsl(var(--primary)); margin-right: .4rem; }
+  .howto { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin: 0 0 2rem; }
+  .howto > div { border: 1px solid hsl(var(--border)); border-radius: var(--radius); background: hsl(var(--card) / .8); padding: .9rem 1rem; }
+  .howto h4, .ep h4 { margin: 0 0 .3rem; font-size: 12px; letter-spacing: .1em; text-transform: uppercase; color: hsl(var(--primary)); }
+  .howto p { margin: 0; font-size: 14.5px; }
+  .ep { border-top: 1px solid hsl(var(--border)); padding: 1.6rem 0 .6rem; }
+  .ep h3 { margin-top: 0; font-size: 19px; display: flex; align-items: center; flex-wrap: wrap; gap: .2rem; }
+  .ep h4 { margin-top: 1.2rem; display: flex; align-items: center; gap: .5rem; }
+  .ep .errs { font-size: 14px; }
+  .ep td:first-child { width: 1%; }
+  footer { border-top: 1px solid hsl(var(--border)); padding: 2rem clamp(1rem, 4vw, 3rem) 3rem; font-size: 14px; color: hsl(var(--muted-foreground)); }
+
+  @media (max-width: 760px) {
+    .panes { grid-template-columns: 1fr; }
+    .pane + .pane { border-left: 0; border-top: 1px solid hsl(var(--border)); }
+    .stop { font-size: 11px; }
+    nav { display: none; }
+    .actions button { flex: 1 1 auto; }
+  }
+  @media (prefers-reduced-motion: reduce) { .wait::after { animation: none; } .stop, .stop .disc { transition: none; } }
+</style>
+<link rel="stylesheet" href="/access.css">
+</head>
+<body>
+<header>
+  <a class="brand" href="/">Radox <i>Rail</i> · API</a>
+  <nav aria-label="Sections"><a href="#use">How to use</a><a href="#try">Try it</a><a href="#start">Get started</a><a href="#endpoints">Reference</a><a href="#errors">Errors</a><a href="/docs/openapi.json">OpenAPI</a></nav>
+  <span class="label">Stellar mainnet · sandbox on testnet</span>
+</header>
+
+<main>
+  <section class="hero">
+    <h1>The Radox Rail API</h1>
+    <p class="lead">Read who holds a shipment, who signed each handover, and check that nobody changed the record. Then run your own shipment in the sandbox: every successful write is a real transaction on Stellar's test network. No account, no key.</p>
+  </section>
+
+  <section id="use" class="howto">
+    <div><h4>Base URL</h4><p><code>https://rio-miami-rail.vercel.app</code> · JSON · CORS open · no key, no account.</p></div>
+    <div><h4>Network</h4><p><code>?network=testnet</code> is the default. <code>mainnet</code> reads the mainnet registry <code>CDV7YI7K…</code>. The sandbox runs on testnet only.</p></div>
+    <div><h4>Limits</h4><p>Per IP address, per 10 minutes: 5 new sandbox shipments, 30 sandbox writes, 20 history calls. About 20 new shipments an hour for everyone.</p></div>
+    <div><h4>Production access</h4><p>Want to run your own handovers on the rail? <a id="request-access" data-access href="mailto:pedro@radox.net?subject=Radox%20Rail%20API%20access">Request access</a>.</p></div>
+  </section>
+
+  <section id="try" aria-label="Try the API">
+    <div class="try">
+      <div class="tryhead"><span class="badge">Try the API</span><span class="tag" id="t-tag">Stellar testnet</span></div>
+      <div class="route" id="t-route" aria-label="Route"></div>
+      <div class="actions">
+        <button type="button" id="b-open">Open a shipment</button>
+        <button type="button" id="b-hand" class="ghost" disabled>Next handover</button>
+        <button type="button" id="b-wrong" class="ghost" disabled>Wrong company</button>
+        <button type="button" id="b-deliver" class="ghost" disabled>Deliver</button>
+        <button type="button" id="b-verify" class="ghost" disabled>Verify the record</button>
+      </div>
+      <div class="panes">
+        <div class="pane"><h4>Request</h4><pre id="t-req">Press “Open a shipment”.</pre></div>
+        <div class="pane"><h4>Response <span class="status" id="t-status" hidden></span></h4><pre class="resp" id="t-resp" aria-live="polite">—</pre></div>
+      </div>
+      <div class="txline" id="t-tx" aria-live="polite"><span class="hash">Each call that writes returns its transaction hash and a link to the public explorer.</span></div>
+    </div>
+  </section>
+
+  <section id="start">
+    <h2>Get started</h2>
+    <ol class="steps">
+      <li><strong>Open a shipment</strong>
+        <p>The sandbox creates five test companies on a route (warehouse, trucker, ship, customs, buyer) and opens the shipment on the registry: two confirmed transactions, about 10 to 15 seconds. The key is <code>shipment.key</code> in the answer. Needs curl and jq.</p>
+        <div class="code"><pre>KEY=$(curl -s -X POST https://rio-miami-rail.vercel.app/api/sandbox/shipments | jq -r .shipment.key)</pre><button class="copy" type="button">Copy</button></div>
+        <p>Then hand it to the next company. Both companies sign:</p>
+        <div class="code"><pre>curl -X POST https://rio-miami-rail.vercel.app/api/sandbox/shipments/$KEY/handover</pre><button class="copy" type="button">Copy</button></div>
+      </li>
+      <li><strong>See the transaction on the explorer</strong>
+        <p>Every write answers with <code>tx.hash</code> and <code>tx.explorer</code>, a stellar.expert link. There you see the contract call, its arguments and the two signatures. Nobody needs our server to read it.</p>
+      </li>
+      <li><strong>Verify the head</strong>
+        <p>The <code>head</code> is a fingerprint of the whole history: each step hashes the one before it. The history endpoint recomputes it from each transaction's own arguments and compares it with the head stored in the contract.</p>
+        <div class="code"><pre>curl https://rio-miami-rail.vercel.app/api/shipments/$KEY/history</pre><button class="copy" type="button">Copy</button></div>
+        <p>To trust no server, not even this one, press <strong>Verify the record</strong> above: your browser fetches each transaction from Stellar's public Horizon, rebuilds the head with the formula below and compares it with the head the contract returns. Any tool that can read Horizon can do the same.</p>
+      </li>
+    </ol>
+  </section>
+
+  <section id="endpoints">
+    <h2>Reference</h2>
+    <p>Examples are real answers from Stellar testnet; long addresses and hashes are shortened here with “…”.</p>
+
+    <article class="ep" id="get-shipment">
+      <h3><span class="method">GET</span><code>/api/shipments/{key}</code></h3>
+      <p>The shipment's current state, read live from the contract. Works for demo and sandbox shipments. No limit of its own.</p>
+      <h4>Parameters</h4>
+      <div class="tablewrap"><table><thead><tr><th>Name</th><th>In</th><th>Type</th><th>Required</th><th>Format</th></tr></thead><tbody>
+        <tr><td><code>key</code></td><td>path</td><td>string</td><td>yes</td><td>64 lowercase hex characters: sha256 of <code>"&lt;container&gt;|&lt;origin&gt;"</code></td></tr>
+        <tr><td><code>network</code></td><td>query</td><td>string</td><td>no</td><td><code>testnet</code> (default) or <code>mainnet</code></td></tr>
+      </tbody></table></div>
+      <h4>Request</h4>
+      <div class="code"><pre>curl https://rio-miami-rail.vercel.app/api/shipments/31b4cff785831659b4ecb8fd3e7382f9760a12ef45ef7eb30f45b3b6911a5e37</pre><button class="copy" type="button">Copy</button></div>
+      <h4>Response <span class="status ok">200</span></h4>
+      <div class="code"><pre>{
+  "network": "testnet",
+  "source": "live",
+  "shipment": {
+    "key": "31b4cff7…911a5e37",
+    "registry": "CCBJVXMJ…R2H4LII",
+    "registry_name": "demo",
+    "status": "Delivered",
+    "current_custodian": "GAG5WGRM…JDA35P7",
+    "route": ["GAJTXDXN…UDF3K2", "GCRBNBSU…VUXSH4D", "GBSRCRAW…P2BMFE", "GA6JTLEG…AOKAOTIEW", "GAG5WGRM…JDA35P7"],
+    "seq": 4,
+    "head": "2d74fec0…83195414",
+    "holder": "GBPFJMZ7…RLIIGDJ",
+    "token": "CBCWTIT5…Z6N5Q22Z"
+  },
+  "contract": "https://stellar.expert/explorer/testnet/contract/CCBJVXMJ…R2H4LII"
+}</pre></div>
+      <h4>Fields</h4>
+      <div class="tablewrap"><table><tbody>
+        <tr><td><code>source</code></td><td><code>live</code>: read from the contract now. <code>snapshot, not live</code>: testnet could not be reached and a saved copy of a demo shipment is shown (only <code>key</code>, <code>registry</code>, <code>head</code>).</td></tr>
+        <tr><td><code>registry</code>, <code>registry_name</code></td><td>The custody_registry contract that holds the shipment: <code>demo</code>, <code>three-machine</code> or <code>sandbox</code>.</td></tr>
+        <tr><td><code>status</code></td><td><code>Open</code>, <code>Delivered</code> or <code>Frozen</code> (by the registry admin).</td></tr>
+        <tr><td><code>current_custodian</code></td><td>Stellar address of the company holding the goods now.</td></tr>
+        <tr><td><code>route</code></td><td>Every company on the route, in order; the first one holds the goods at opening.</td></tr>
+        <tr><td><code>seq</code></td><td>Handovers done so far.</td></tr>
+        <tr><td><code>head</code></td><td>Fingerprint of the whole history: each step hashes the one before it (formula below).</td></tr>
+        <tr><td><code>holder</code></td><td>Who received the goods at delivery; <code>null</code> before.</td></tr>
+        <tr><td><code>token</code></td><td>The asset contract the shipment names. Sandbox shipments name the native XLM contract as a placeholder.</td></tr>
+      </tbody></table></div>
+      <p class="errs">Errors: <code>E_KEY</code> 400, <code>E_NOT_FOUND</code> 404, <code>E_NETWORK</code> 502, <code>E_MAINNET_NOT_DEPLOYED</code> 503.</p>
+    </article>
+
+    <article class="ep" id="get-history">
+      <h3><span class="method">GET</span><code>/api/shipments/{key}/history</code></h3>
+      <p>Every registry call for the shipment, with its transaction, and the head recomputed from each call's own arguments. Limit: 20 per 10 minutes per IP address; an answer is reused for 20 seconds.</p>
+      <h4>Parameters</h4>
+      <p>Same as above: <code>key</code> (path, required), <code>network</code> (query, optional).</p>
+      <h4>Request</h4>
+      <div class="code"><pre>curl https://rio-miami-rail.vercel.app/api/shipments/$KEY/history</pre><button class="copy" type="button">Copy</button></div>
+      <h4>Response <span class="status ok">200</span></h4>
+      <div class="code"><pre>{
+  "network": "testnet",
+  "shipment": { "key": "a9d2ab53…b6e1ffde", "status": "Open", "seq": 1, "head": "64cb0015…4197d12d", … },
+  "steps": [
+    { "step": "open", "hash": "9bac17f1…ae94bd06", "explorer": "https://stellar.expert/…", "ledger": 5393621,
+      "time": "2026-10-26T05:14:52Z", "route": [ … ], "docs_root": "8e135789…", "head_after": "…" },
+    { "step": "handover", "hash": "b6c23011…44755d1d", "from": "GCN7FALU…RN4GTO", "to": "GDAZRF2X…LU4LMKF",
+      "seq": 1, "evidence_hash": "25f7b717…d6b998a5", "assurance": 3, "head_after": "64cb0015…4197d12d", … }
+  ],
+  "recomputed_head": "64cb0015…4197d12d",
+  "head_matches": true
+}</pre></div>
+      <h4>Fields</h4>
+      <div class="tablewrap"><table><tbody>
+        <tr><td><code>steps</code></td><td>In ledger order: <code>open</code>, <code>handover</code>, <code>attest</code>, <code>deliver</code>, each with its transaction <code>hash</code>, <code>explorer</code> link, <code>ledger</code>, <code>time</code> and the <code>head_after</code> it.</td></tr>
+        <tr><td><code>assurance</code></td><td>Declared by the caller: 3 = both signed in person, 2 = one side by delegation, 1 = external attestation only.</td></tr>
+        <tr><td><code>head_matches</code></td><td><code>true</code> when the recomputed head equals the head in the contract. <code>null</code> when the shipment opened more than about 7 days ago: the testnet RPC keeps contract events that long.</td></tr>
+      </tbody></table></div>
+      <p class="errs">Errors: <code>E_KEY</code> 400, <code>E_NOT_FOUND</code> 404, <code>E_RATE_LIMIT</code> 429, <code>E_NETWORK</code> 502, <code>E_MAINNET_NOT_DEPLOYED</code> 503.</p>
+    </article>
+
+    <article class="ep" id="post-open">
+      <h3><span class="method">POST</span><code>/api/sandbox/shipments</code></h3>
+      <p>Opens a new test shipment on a five-stop route (warehouse, trucker, ship, customs, buyer). The server creates six throwaway testnet accounts (the five companies and the holder) and calls <code>open</code>: two confirmed transactions, about 10 to 15 seconds. No body. Limit: 5 per 10 minutes per IP address, about 20 an hour for everyone.</p>
+      <h4>Request</h4>
+      <div class="code"><pre>curl -X POST https://rio-miami-rail.vercel.app/api/sandbox/shipments</pre><button class="copy" type="button">Copy</button></div>
+      <h4>Response <span class="status ok">201</span></h4>
+      <div class="code"><pre>{
+  "network": "testnet",
+  "call": "open",
+  "tx": { "hash": "9bac17f1…ae94bd06", "explorer": "https://stellar.expert/explorer/testnet/tx/9bac17f1…", "signers": ["GBD6DWV7…GKLXMDSJ"] },
+  "setup_tx": { "hash": "fe5b5521…26706ce8", "explorer": "https://stellar.expert/…" },
+  "container": "SBX1381138|BRRIO",
+  "roles": { "warehouse": "GCN7FALU…RN4GTO", "trucker": "GDAZRF2X…LU4LMKF", "ship": "…", "customs": "…", "buyer": "…", "holder": "…" },
+  "shipment": { "key": "a9d2ab53…b6e1ffde", "registry_name": "sandbox", "status": "Open", "seq": 0, … },
+  "next": "POST /api/sandbox/shipments/a9d2ab53…/handover"
+}</pre></div>
+      <h4>Fields</h4>
+      <div class="tablewrap"><table><tbody>
+        <tr><td><code>tx</code></td><td>The <code>open</code> call on the registry, signed by the sandbox operator.</td></tr>
+        <tr><td><code>setup_tx</code></td><td>The transaction that created the six test accounts.</td></tr>
+        <tr><td><code>container</code></td><td>A made-up container number and origin; <code>shipment.key</code> is its sha256.</td></tr>
+        <tr><td><code>roles</code></td><td>The test address of each company and of the holder.</td></tr>
+      </tbody></table></div>
+      <p class="errs">Errors: <code>E_RATE_LIMIT</code> 429, <code>E_SANDBOX_CAP</code> 429, <code>E_NETWORK</code> 502, <code>E_TX_FAILED</code> 502, <code>E_SANDBOX_OFF</code> 503, <code>E_SANDBOX_EMPTY</code> 503, <code>E_MAINNET_NOT_DEPLOYED</code> 503, <code>E_TIMEOUT</code> 504.</p>
+    </article>
+
+    <article class="ep" id="post-handover">
+      <h3><span class="method">POST</span><code>/api/sandbox/shipments/{key}/handover</code></h3>
+      <p>The next handover, signed by both companies: the one giving the goods sends the transaction, the one receiving them signs its authorisation. About 5 seconds. Limit: 30 sandbox writes per 10 minutes per IP address.</p>
+      <h4>Parameters</h4>
+      <div class="tablewrap"><table><thead><tr><th>Name</th><th>In</th><th>Type</th><th>Required</th><th>Format</th></tr></thead><tbody>
+        <tr><td><code>key</code></td><td>path</td><td>string</td><td>yes</td><td>A sandbox shipment key (64 hex).</td></tr>
+        <tr><td><code>from</code></td><td>body</td><td>string</td><td>no</td><td><code>warehouse</code>, <code>trucker</code>, <code>ship</code>, <code>customs</code> or <code>buyer</code>. Default: the current custodian. Another company is sent anyway, so the contract's refusal shows.</td></tr>
+        <tr><td><code>assurance</code></td><td>body</td><td>integer</td><td>no</td><td>1, 2 or 3; default 3. Outside 1 to 3 the contract refuses it.</td></tr>
+        <tr><td><code>evidence</code></td><td>body</td><td>string</td><td>no</td><td>Any text; its sha256 is stored as the handover's evidence hash.</td></tr>
+        <tr><td><code>network</code></td><td>query</td><td>string</td><td>no</td><td>As above.</td></tr>
+      </tbody></table></div>
+      <h4>Request</h4>
+      <div class="code"><pre>curl -X POST https://rio-miami-rail.vercel.app/api/sandbox/shipments/$KEY/handover \
+  -H 'Content-Type: application/json' -d '{"evidence":"gate-in photo 0042"}'</pre><button class="copy" type="button">Copy</button></div>
+      <h4>Response <span class="status ok">200</span></h4>
+      <div class="code"><pre>{
+  "network": "testnet",
+  "call": "handover",
+  "tx": { "hash": "b6c23011…44755d1d", "explorer": "https://stellar.expert/…", "signers": ["GCN7FALU…RN4GTO", "GDAZRF2X…LU4LMKF"] },
+  "from": "warehouse",
+  "to": "trucker",
+  "signed_by": ["warehouse", "trucker"],
+  "evidence_hash": "25f7b717…d6b998a5",
+  "shipment": { "status": "Open", "current_custodian": "GDAZRF2X…LU4LMKF", "seq": 1, "head": "64cb0015…4197d12d", … }
+}</pre></div>
+      <h4>Refusal <span class="status bad">409</span></h4>
+      <div class="code"><pre>curl -X POST https://rio-miami-rail.vercel.app/api/sandbox/shipments/$KEY/handover \
+  -H 'Content-Type: application/json' -d '{"from":"customs"}'
+
+{
+  "network": "testnet",
+  "error": {
+    "code": "E_WRONG_CUSTODIAN",
+    "message": "The company handing over is not the one holding the shipment.",
+    "refused_by": "custody_registry",
+    "contract_error": 1
+  }
+}</pre><button class="copy" type="button">Copy</button></div>
+      <p class="errs">Errors: <code>E_KEY</code> 400, <code>E_ROLE</code> 400, <code>E_ASSURANCE</code> 400, <code>E_AUTH</code> 403, <code>E_NOT_FOUND</code> 404, <code>E_NOT_SANDBOX</code> 404, <code>E_WRONG_CUSTODIAN</code> 409, <code>E_NOT_OPEN</code> 409, <code>E_FROZEN</code> 409, <code>E_PAUSED</code> 409, <code>E_BAD_ASSURANCE</code> 409, <code>E_ROUTE_COMPLETE</code> 409, <code>E_RATE_LIMIT</code> 429, <code>E_NETWORK</code> 502, <code>E_TX_FAILED</code> 502, <code>E_SANDBOX_OFF</code> 503, <code>E_MAINNET_NOT_DEPLOYED</code> 503, <code>E_TIMEOUT</code> 504.</p>
+    </article>
+
+    <article class="ep" id="post-deliver">
+      <h3><span class="method">POST</span><code>/api/sandbox/shipments/{key}/deliver</code></h3>
+      <p>The buyer, last on the route, hands the goods to the holder; both sign and the shipment becomes <code>Delivered</code>. Before every handover is done the contract refuses it. Sandbox shipments carry no token, so nothing is burned. Parameters: <code>key</code> (path), <code>network</code> (query). Same limit as handover.</p>
+      <div class="code"><pre>curl -X POST https://rio-miami-rail.vercel.app/api/sandbox/shipments/$KEY/deliver</pre><button class="copy" type="button">Copy</button></div>
+      <p>The answer has the same shape as a handover: <code>call: "deliver"</code>, <code>tx</code>, <code>signed_by: ["buyer", "holder"]</code> and the <code>shipment</code> with <code>status: "Delivered"</code> and its <code>holder</code>.</p>
+      <p class="errs">Errors: <code>E_KEY</code> 400, <code>E_AUTH</code> 403, <code>E_NOT_FOUND</code> 404, <code>E_NOT_SANDBOX</code> 404, <code>E_NOT_FINAL</code> 409, <code>E_NOT_OPEN</code> 409, <code>E_FROZEN</code> 409, <code>E_RATE_LIMIT</code> 429, <code>E_NETWORK</code> 502, <code>E_TX_FAILED</code> 502, <code>E_SANDBOX_OFF</code> 503, <code>E_MAINNET_NOT_DEPLOYED</code> 503, <code>E_TIMEOUT</code> 504.</p>
+    </article>
+
+    <h3>The head formula</h3>
+    <p>The same bytes as <a href="https://github.com/radox-labs/radox-contracts/blob/main/contracts/custody_registry/src/lib.rs">the custody_registry contract</a>. <code>addr(x)</code> is the XDR of the address as an ScVal; numbers are 4-byte big-endian.</p>
+    <div class="code"><pre>open:     sha256(0x01 || key || docs_root)
+handover: sha256(0x02 || head || addr(from) || addr(to) || evidence_hash || be32(seq) || be32(assurance))
+attest:   sha256(0x03 || head || addr(source) || be32(kind) || event_hash || be32(seq))</pre><button class="copy" type="button">Copy</button></div>
+  </section>
+
+  <section id="errors">
+    <h2>Errors</h2>
+    <p>Every error answers <code>{ "error": { "code", "message" } }</code>. When the contract itself refused the call, the answer adds <code>"refused_by": "custody_registry"</code> and its error number, and no transaction is sent.</p>
+    <div class="tablewrap"><table>
+      <thead><tr><th>Code</th><th>HTTP</th><th>Meaning</th></tr></thead>
+      <tbody id="errtable"></tbody>
+    </table></div>
+  </section>
+
+  <section>
+    <h2>What this is, and is not</h2>
+    <p>This is the open API of Radox Rail: it reads and writes the open-source <code>custody_registry</code> contract on Stellar's test network. It serves only that contract; Radox's own platform is a separate system and is not exposed here. The companies are test accounts, the keys are test keys, and no real goods or money move. Sandbox shipments go to their own registry (<a href="https://stellar.expert/explorer/testnet/contract/CBTHLSQXQNEZ25UMVRP5TGOCPOTJXLFISJ2EF5NRNITAZPGMMW656ERX">CBTHLS…6ERX</a>), deployed from the same code as the demo registry (wasm <code>8230ed93…1342</code>); they name the native XLM contract as a placeholder token, and no token is issued or burned.</p>
+  </section>
+</main>
+<footer>Radox Rail · open source, Apache-2.0 · <a href="https://github.com/pwsaragossy/rio-miami-rail">code</a> · <a href="/docs/openapi.json">openapi.json</a> · <a href="/llms.txt">llms.txt</a> · <a href="/">back to the rail</a></footer>
+<script src="/stellar-sdk.min.js" integrity="sha384-m8PUt1dOZNB/F00Ptl24XGCprXHMeUMNhxKegKRqhjvaPZVqgS9FM9Cf6IIfZ6tL" defer></script>
+<script src="/docs/docs.js" defer></script>
+<script type="module" src="/access.js"></script>
+</body>
+</html>

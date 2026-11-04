@@ -1,0 +1,1 @@
+Standard 'no charge' license: https://gsap.com/standard-license (GSAP 3.13.0, package.json)

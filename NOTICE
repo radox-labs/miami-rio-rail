@@ -1,0 +1,31 @@
+rio-miami-rail
+Copyright 2026 the rio-miami-rail contributors
+
+Licensed under the Apache License, Version 2.0 (see LICENSE).
+
+Third-party file:
+page/stellar-sdk.min.js is the unmodified browser bundle of @stellar/stellar-sdk 17.3.0
+(https://github.com/stellar/js-stellar-sdk), Apache License 2.0, copyright Stellar Development Foundation.
+page/vendor/d3-geo.min.js (d3-geo 3.1.1) and page/vendor/d3-array.min.js (d3-array 3.2.4), unmodified,
+ISC License, copyright Mike Bostock (https://github.com/d3); licences in page/vendor/.
+page/vendor/land-110m.geo.json is world-atlas 2.0.2 land-110m (ISC, from Natural Earth, public domain),
+converted from TopoJSON to GeoJSON with coordinates rounded to 0.1 degree.
+page/fonts/*.woff2 are Inter (latin 400, 600, 700) from @fontsource/inter 5.1.1, SIL Open Font License 1.1
+(page/fonts/LICENSE-Inter-OFL.txt).
+page/vendor/three.module.min.js is three.js 0.170.0 (r170), unmodified, MIT License, copyright three.js authors
+(https://github.com/mrdoob/three.js); licence in page/vendor/LICENSE-three.txt.
+page/vendor/gsap.min.js is GSAP 3.13.0, unmodified, copyright GreenSock, used under the GSAP Standard 'no charge'
+License (https://gsap.com/standard-license), which is not an open-source licence; see page/vendor/LICENSE-gsap.txt.
+page/vendor/icons.js holds the inner SVG markup of the Lucide 0.460.0 icons the page uses (https://lucide.dev),
+ISC License, copyright Lucide Contributors and, for portions from Feather, Cole Bemis (MIT);
+licence in page/vendor/LICENSE-lucide.txt.
+page/logos/ holds the marks of the organisations named on the page, used only to identify them. Each is a
+trademark of its owner and is not covered by this repository's licence. Taken 2026-10-26 from the owner's own site:
+- cisbra.png: CISBRA, Camara de Comercio, Industria e Servicos do Brasil; horizontal logo from
+  https://www.cisbra.org.br (static.wixstatic.com/media/0532de_cee67a2f1cbf4412b5c672602ffe1077~mv2.png),
+  converted to greyscale and resized; shape and proportions unchanged.
+- camacol.png: CAMACOL, Latin Chamber of Commerce of the USA; header logo from https://camacol.org
+  (wp-content/uploads/thegem/logos/logo_266be408c5cd92a49c194194d72cd04a_3x.png), shown as a one-colour
+  light version (ink taken from the original's tones) and resized; shape and proportions unchanged.
+- stellar.svg: Stellar logo, Stellar Development Foundation; official white logo from the Logo Press Kit 2026 at
+  https://stellar.org/brand-resources, converted from the vector PDF to SVG and trimmed to the artwork, unmodified.

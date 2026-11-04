@@ -1,0 +1,10 @@
+{
+  "name": "rio-miami-rail-page",
+  "private": true,
+  "license": "Apache-2.0",
+  "type": "module",
+  "engines": { "node": ">=20" },
+  "dependencies": {
+    "@stellar/stellar-sdk": "17.3.0"
+  }
+}

@@ -1,0 +1,153 @@
+{
+  "base": "https://rio-miami-rail.vercel.app",
+  "network": "testnet",
+  "run_at": "2026-10-26T10:22:04.981Z",
+  "checks": [
+    {
+      "name": "read demo shipment",
+      "request": "GET /api/shipments/31b4cff785831659b4ecb8fd3e7382f9760a12ef45ef7eb30f45b3b6911a5e37",
+      "status": 200,
+      "ok": true
+    },
+    {
+      "name": "read: bad key",
+      "request": "GET /api/shipments/not-a-key",
+      "status": 400,
+      "ok": true,
+      "code": "E_KEY"
+    },
+    {
+      "name": "read: unknown key",
+      "request": "GET /api/shipments/0000000000000000000000000000000000000000000000000000000000000000",
+      "status": 404,
+      "ok": true,
+      "code": "E_NOT_FOUND"
+    },
+    {
+      "name": "read mainnet shipment",
+      "request": "GET /api/shipments/5dc2e39a8560dd99f19ec5034431b5e1ae979f5941969bbdb6f86fcd25656b2d?network=mainnet",
+      "status": 200,
+      "ok": true
+    },
+    {
+      "name": "mainnet history",
+      "request": "GET /api/shipments/5dc2e39a8560dd99f19ec5034431b5e1ae979f5941969bbdb6f86fcd25656b2d/history?network=mainnet",
+      "status": 200,
+      "ok": true
+    },
+    {
+      "name": "sandbox stays on testnet",
+      "request": "POST /api/sandbox/shipments?network=mainnet",
+      "status": 400,
+      "ok": true,
+      "code": "E_TESTNET_ONLY"
+    },
+    {
+      "name": "history demo shipment",
+      "request": "GET /api/shipments/31b4cff785831659b4ecb8fd3e7382f9760a12ef45ef7eb30f45b3b6911a5e37/history",
+      "status": 200,
+      "ok": true
+    },
+    {
+      "name": "sandbox open",
+      "request": "POST /api/sandbox/shipments",
+      "status": 201,
+      "ok": true,
+      "tx": "29d5fc072ce9e211649d58295e5d2d31497abf5e000662d1dee0f66f1155790c",
+      "explorer": "https://stellar.expert/explorer/testnet/tx/29d5fc072ce9e211649d58295e5d2d31497abf5e000662d1dee0f66f1155790c"
+    },
+    {
+      "name": "handover 1 (warehouse -> trucker)",
+      "request": "POST /api/sandbox/shipments/4c6a569020462102a9270abababd42f3d32927a09f4b1c9d86cf70915f43c0df/handover",
+      "status": 200,
+      "ok": true,
+      "tx": "ef2d4330d1e1901efefa8f1e2b154809fc927f709c256e6b32f4e2b30ace9913",
+      "explorer": "https://stellar.expert/explorer/testnet/tx/ef2d4330d1e1901efefa8f1e2b154809fc927f709c256e6b32f4e2b30ace9913"
+    },
+    {
+      "name": "refusal: wrong company hands over",
+      "request": "POST /api/sandbox/shipments/4c6a569020462102a9270abababd42f3d32927a09f4b1c9d86cf70915f43c0df/handover {\"from\":\"customs\"}",
+      "status": 409,
+      "ok": true,
+      "code": "E_WRONG_CUSTODIAN",
+      "refused_by": "custody_registry"
+    },
+    {
+      "name": "refusal: assurance 0",
+      "request": "POST /api/sandbox/shipments/4c6a569020462102a9270abababd42f3d32927a09f4b1c9d86cf70915f43c0df/handover {\"assurance\":0}",
+      "status": 409,
+      "ok": true,
+      "code": "E_BAD_ASSURANCE",
+      "refused_by": "custody_registry"
+    },
+    {
+      "name": "refusal: early delivery",
+      "request": "POST /api/sandbox/shipments/4c6a569020462102a9270abababd42f3d32927a09f4b1c9d86cf70915f43c0df/deliver",
+      "status": 409,
+      "ok": true,
+      "code": "E_NOT_FINAL",
+      "refused_by": "custody_registry"
+    },
+    {
+      "name": "handover 2",
+      "request": "POST /api/sandbox/shipments/4c6a569020462102a9270abababd42f3d32927a09f4b1c9d86cf70915f43c0df/handover",
+      "status": 200,
+      "ok": true,
+      "tx": "2f48482fe0f329e6e6ad33ff8ca21e74c0ab4849b4705b4943e526e0fd91f5c3",
+      "explorer": "https://stellar.expert/explorer/testnet/tx/2f48482fe0f329e6e6ad33ff8ca21e74c0ab4849b4705b4943e526e0fd91f5c3"
+    },
+    {
+      "name": "handover 3",
+      "request": "POST /api/sandbox/shipments/4c6a569020462102a9270abababd42f3d32927a09f4b1c9d86cf70915f43c0df/handover",
+      "status": 200,
+      "ok": true,
+      "tx": "68727c7ca200349d214a3385a0899d72c1b36c7aea27ffeccf895e0b08cbac00",
+      "explorer": "https://stellar.expert/explorer/testnet/tx/68727c7ca200349d214a3385a0899d72c1b36c7aea27ffeccf895e0b08cbac00"
+    },
+    {
+      "name": "handover 4",
+      "request": "POST /api/sandbox/shipments/4c6a569020462102a9270abababd42f3d32927a09f4b1c9d86cf70915f43c0df/handover",
+      "status": 200,
+      "ok": true,
+      "tx": "ea6725822de3c65c7d78c9d8ef5664071bda26d5ccf9386bf160dffbaac64f35",
+      "explorer": "https://stellar.expert/explorer/testnet/tx/ea6725822de3c65c7d78c9d8ef5664071bda26d5ccf9386bf160dffbaac64f35"
+    },
+    {
+      "name": "route complete",
+      "request": "POST /api/sandbox/shipments/4c6a569020462102a9270abababd42f3d32927a09f4b1c9d86cf70915f43c0df/handover",
+      "status": 409,
+      "ok": true,
+      "code": "E_ROUTE_COMPLETE"
+    },
+    {
+      "name": "deliver",
+      "request": "POST /api/sandbox/shipments/4c6a569020462102a9270abababd42f3d32927a09f4b1c9d86cf70915f43c0df/deliver",
+      "status": 200,
+      "ok": true,
+      "tx": "c43911d3d5b5f67f81cdc2c316d69c5d5673625a982b11b65c2b08c9768367a0",
+      "explorer": "https://stellar.expert/explorer/testnet/tx/c43911d3d5b5f67f81cdc2c316d69c5d5673625a982b11b65c2b08c9768367a0"
+    },
+    {
+      "name": "refusal: handover after delivery",
+      "request": "POST /api/sandbox/shipments/4c6a569020462102a9270abababd42f3d32927a09f4b1c9d86cf70915f43c0df/handover",
+      "status": 409,
+      "ok": true,
+      "code": "E_NOT_OPEN",
+      "refused_by": "custody_registry"
+    },
+    {
+      "name": "read sandbox shipment",
+      "request": "GET /api/shipments/4c6a569020462102a9270abababd42f3d32927a09f4b1c9d86cf70915f43c0df",
+      "status": 200,
+      "ok": true
+    },
+    {
+      "name": "history sandbox shipment, head recomputed",
+      "request": "GET /api/shipments/4c6a569020462102a9270abababd42f3d32927a09f4b1c9d86cf70915f43c0df/history",
+      "status": 200,
+      "ok": true
+    }
+  ],
+  "sandbox_key": "4c6a569020462102a9270abababd42f3d32927a09f4b1c9d86cf70915f43c0df",
+  "failed": 0
+}

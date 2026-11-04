@@ -1,0 +1,192 @@
+{
+  "network": "testnet",
+  "custody_registry": "CCBJVXMJYWPHTDJHDFPRGKPGXGEP24JOPJAMUS5C3BMZJTRTWR2H4LII",
+  "transfer_agent_instance": "CAYD3EFTN6YOHMHJ5C62WYGABBIN2G6MV5MLHUKWV2EVJP5FFTKXSJWH",
+  "token": "CBCWTIT5YNPNSA4ZSJJXUFZKGQROZPWNWYNZ4CSO7HLWJXU7Z6N5Q22Z",
+  "shipment": {
+    "container": "TEST4627832",
+    "origin": "BRRIO",
+    "key": "31b4cff785831659b4ecb8fd3e7382f9760a12ef45ef7eb30f45b3b6911a5e37",
+    "docs_root": "5bb89cf60e9c40314ba447f92a64b40b4ba1e05a840eeb34faf76b9033ddff27",
+    "final_head": "2d74fec064a6796c34be93ede6241e0e067650dcfb2e058382f2f9cf83195414"
+  },
+  "actors": {
+    "exporter": "GAKTDHZIKXNSO7TIAQJAZPZBDLPKYONHDZYQBPYORQPYAH5UYAE7OAHZ",
+    "operator": "GCXYI6RYMJQUNO2VFBPUTZ55WBRFVGBTZBOW3YF65ABLGPNNSHX3J4OF",
+    "seller": "GAFCP2T6XTGRJQYVTMMAUGRSCNJZE6URET6BHXKMCR4WYILPTNGQLFWQ",
+    "holder": "GBPFJMZ7DACIYVNW4TCAHMJ3OT5DU37M4TANIYBGHJ543X673RLIIGDJ",
+    "warehouse": "GAJTXDXNNKX7J5WQB3NWJQJM6IJIJSN2EBJE52R24ZXUPYYMYYUDF3K2",
+    "port": "GCRBNBSUMHH2ZZNI64UPEMCAKOLKLNA5PQC6IV5R4ZO43URLJVUXSH4D",
+    "carrier": "GBSRCRAWQNVRLFAMJUATUTOLL5JEXD5X2NW6NNU4O7X3DTOW4KP2BMFE",
+    "customs": "GA6JTLEGAFOZPHR7TMSU7LAG6WLKN2USBLIYRMRRT6KXDH4AOKAOTIEW",
+    "recipient": "GAG5WGRM7D2BQWD66FBW4UCU4BADB4UIX7B5QAOOR25JP25E5JDA35P7",
+    "source": "GDKUHZ2SPSJJKFNZWSPZWLGXY27LRKMTKKZ7F2C76LCKUCZHPHUA4CJ6",
+    "stranger": "GCAR5NAUEHTPFTAROD2BIUXP6XHQ2TUBWGHXJHLAYYZAXWP4QOKRMIPW"
+  },
+  "setup": [
+    {
+      "step": "friendbot_fund",
+      "hash": null,
+      "accounts": [
+        "exporter",
+        "operator",
+        "seller",
+        "holder",
+        "warehouse",
+        "port",
+        "carrier",
+        "customs",
+        "recipient",
+        "source",
+        "stranger"
+      ]
+    },
+    {
+      "step": "issuer_flags",
+      "hash": "cfd5885f00d7261eb7f772cd79d55e6e75f399cc79eb16126958f55a0ce18863"
+    },
+    {
+      "step": "trustline_seller",
+      "hash": "2726f37da4c6111c02a33bfadf54bcf0b6e647e37bcd4cc1675ed924c803d245"
+    },
+    {
+      "step": "authorize_seller",
+      "hash": "7c33680fc9b38a7e07825e562fe3f9a108511feac581f21428ca595cf5b5ba5b"
+    },
+    {
+      "step": "trustline_holder",
+      "hash": "7d1021be58e5979386cebaca37840527a22f9f2afb9e085a1c90fb4552c7cb67"
+    },
+    {
+      "step": "authorize_holder",
+      "hash": "6bd0bad294292127ebace5a243b32fcb9690b6ee1b9679a7b2cdd77ce128201c"
+    },
+    {
+      "step": "asset_contract",
+      "hash": "77d1b69b988b6b232e627ed4a5edeb95054c80def05c9c076ac14b1fba832d0d"
+    },
+    {
+      "step": "transfer_agent_deploy",
+      "hash": "3c72497533c882f3d32ae7857500c06b4776b93ca8674e98dd9dddace52f2e77"
+    },
+    {
+      "step": "set_admin_to_agent",
+      "hash": "0056254f2e692724f039cda68483e43beae55282d5b9d9b5239bb13da47833fd"
+    },
+    {
+      "step": "register_token",
+      "hash": "6661aaf0b941687c1f256f0b6686a6c72332176b9897b6b104da74004896d2ac"
+    },
+    {
+      "step": "mint",
+      "hash": "eb86ea5b7e7a17ba72b362a76c6d2244efefa49222f4777d7ccbc4900ada6497"
+    },
+    {
+      "step": "agent_deliver_to_holder",
+      "hash": "ebbc04f78db65016947acbe3acf7e882a636deaebce6e2afbfb6999a2ff30900"
+    },
+    {
+      "step": "add_event_source",
+      "hash": "a6f39abbc74c20517230965d2a6bb73d2c0e1100351da3cda0831937db5d948e"
+    }
+  ],
+  "lifecycle": [
+    {
+      "step": "open",
+      "hash": "2b3d51f0cdf113d34a7c20dd373142c379926bd3bd24ca0a9cb6d4718e379902"
+    },
+    {
+      "step": "handover",
+      "hash": "635c99ac73cb13416e6b52f29ac9a067fbc615e01b8de962eb36245db3f0bd38"
+    },
+    {
+      "step": "handover",
+      "hash": "56a0f006e3373df34c96ae7b0f02c4b66753ccaca6ccc48fe5125bb65e7b7cc2"
+    },
+    {
+      "step": "handover",
+      "hash": "ac268a49e00ddf4745c9026bf01e3c77e5c451a7e2396100ef590a36ecc3c4b2"
+    },
+    {
+      "step": "handover",
+      "hash": "5199d4fb6b2833662327deecbf5fcaf058a0d7a464f97974edd107f5de400b7a"
+    },
+    {
+      "step": "deliver",
+      "hash": "919def8c0b3f29ae650f5f1ea6d632e49efd4a9442381c84c83d858ad2144e37"
+    },
+    {
+      "step": "redeem",
+      "hash": "864fd1644d30bf708a59f94ca5b0fc303a50deccfd96099bd32dfb67e215644d"
+    }
+  ],
+  "attest": [
+    {
+      "hash": "333792115c7a93abdbf4a45dc217b4bb332c69d14f95095d7d0dffc9d0068905"
+    }
+  ],
+  "failures": [
+    {
+      "case": "wrong_custodian",
+      "error": "HostError: Error(Contract, #1)",
+      "hash_or_sim": "simulation"
+    },
+    {
+      "case": "out_of_route",
+      "error": "HostError: Error(Contract, #2)",
+      "hash_or_sim": "simulation"
+    },
+    {
+      "case": "wrong_signer",
+      "error": "HostError: Error(Auth, InvalidAction)",
+      "hash_or_sim": "simulation"
+    },
+    {
+      "case": "early_delivery",
+      "error": "HostError: Error(Contract, #10)",
+      "hash_or_sim": "simulation"
+    },
+    {
+      "case": "bad_assurance",
+      "error": "HostError: Error(Contract, #13)",
+      "hash_or_sim": "simulation"
+    },
+    {
+      "case": "duplicate_key",
+      "error": "HostError: Error(Contract, #4)",
+      "hash_or_sim": "simulation"
+    },
+    {
+      "case": "after_freeze",
+      "error": "HostError: Error(Contract, #7)",
+      "hash_or_sim": "simulation"
+    },
+    {
+      "case": "while_paused",
+      "error": "HostError: Error(Contract, #6)",
+      "hash_or_sim": "simulation"
+    },
+    {
+      "case": "unknown_source",
+      "error": "HostError: Error(Contract, #5)",
+      "hash_or_sim": "simulation"
+    }
+  ],
+  "issuer_after_set_admin": {
+    "thresholds": {
+      "low_threshold": 0,
+      "med_threshold": 0,
+      "high_threshold": 0
+    },
+    "master_weight": 1
+  },
+  "redeem_precondition": "Delivered",
+  "holder_balance_after_redeem": "0",
+  "failure_context": {
+    "second_shipment_key": "cac916a3477b7e78012c8bb3e77b367518e395c5b7b5f343a6d42e76cb63db2b",
+    "freeze": "f442510648a2a3adce3a6356b3c5b3fc50710c0e26ae5757b60b60585d0c45da",
+    "unfreeze": "a7b776a98dc1af8afe9e8a1a71f7afdac3ae498369452ba724f9cdce776c94c3",
+    "pause": "62d4ec0354656af455b9c6017429b91ca2acff9762b850bb6611093042a27684",
+    "resume": "b04ec11207399e9d55171a3749db050fbdbf3e92755258045bccecbbf348ae11"
+  }
+}

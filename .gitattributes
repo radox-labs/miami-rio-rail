@@ -1,0 +1,6 @@
+# Check out text with LF on every OS: a CRLF copy of page/stellar-sdk.min.js changes its
+# sha384 and the browser's SRI check then blocks it (seen on a Windows clone).
+* text=auto eol=lf
+*.woff2 binary
+*.wasm binary
+*.png binary

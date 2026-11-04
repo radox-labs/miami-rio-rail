@@ -1,0 +1,167 @@
+{
+  "network": "testnet",
+  "custody_registry": "CDDWEENF6DKM4AHFWDBHQTYPLC3STMVFPXHXYDORLD53WDZM3FF3KJX4",
+  "token": "CBCWTIT5YNPNSA4ZSJJXUFZKGQROZPWNWYNZ4CSO7HLWJXU7Z6N5Q22Z",
+  "directory": {
+    "GADDDA6LRP656GCOPI5MRFSWT7NN7VKS2YLBON4LVVJTT5L4JCLDG366": {
+      "company": "Company A",
+      "unit": "A-warehouse"
+    },
+    "GCIELVHBMY46VRGGBDQRH6OCGGI7Q553ALCDSJWIJQJHRH7EUFVJTGIC": {
+      "company": "Company A",
+      "unit": "A-terminal"
+    },
+    "GB22KOIGHUKKL4P3EGGPEPSGVHTKXTHYUY5LPIYO5JVXVGZ4CMZE63JV": {
+      "company": "Company A",
+      "unit": "A-yard"
+    },
+    "GBDUADSFSMZSSERXK2HNVIMLAPIPN2DFLHKSH2VR3VCZBBVZINDHJNQN": {
+      "company": "Company B",
+      "unit": "B-vessel"
+    },
+    "GCTQX3E2QP4LSW6I3KBL46LDR5LUPB7EICYH3AMUZKN3ZOYOHHZJQYWT": {
+      "company": "Company B",
+      "unit": "B-depot"
+    }
+  },
+  "actors": {
+    "admin": "GBZK6XVGVHV4CMPE3SSG3GCSKBJKNW2DY4C7VDR2E4PITFBFWDDX4LNX",
+    "operator": "GBNW5T2S3TOW5KZRRHTOGG5HG3ENLCRTD6LP3NXDS7XQLBSBCGS5BJZD",
+    "A-warehouse": "GADDDA6LRP656GCOPI5MRFSWT7NN7VKS2YLBON4LVVJTT5L4JCLDG366",
+    "A-terminal": "GCIELVHBMY46VRGGBDQRH6OCGGI7Q553ALCDSJWIJQJHRH7EUFVJTGIC",
+    "A-yard": "GB22KOIGHUKKL4P3EGGPEPSGVHTKXTHYUY5LPIYO5JVXVGZ4CMZE63JV",
+    "B-vessel": "GBDUADSFSMZSSERXK2HNVIMLAPIPN2DFLHKSH2VR3VCZBBVZINDHJNQN",
+    "B-depot": "GCTQX3E2QP4LSW6I3KBL46LDR5LUPB7EICYH3AMUZKN3ZOYOHHZJQYWT",
+    "holder1": "GBJFX4HPDQ4QQSTKDVG6FQYFXLPJEDOC4UDUURE7WNNHSZFHLX4SOEGN",
+    "holder2": "GDCLBYD4HKFBIXEIQQYOKDNRVO5XPHM6MVEYQQUPUC6RBTVWXMKKHJ55"
+  },
+  "shipment": {
+    "container": "TEST3286578",
+    "origin": "BRRIO",
+    "key": "404c2ca977251e7c4139143161814def648a92094d5dff63c2694c89b9adddeb",
+    "docs_root": "ea3bc3be215730806fec6c9784f4730b72596fd1b387d8c0f6e71f79f4d0a058",
+    "route": [
+      "GADDDA6LRP656GCOPI5MRFSWT7NN7VKS2YLBON4LVVJTT5L4JCLDG366",
+      "GCIELVHBMY46VRGGBDQRH6OCGGI7Q553ALCDSJWIJQJHRH7EUFVJTGIC",
+      "GBDUADSFSMZSSERXK2HNVIMLAPIPN2DFLHKSH2VR3VCZBBVZINDHJNQN",
+      "GCTQX3E2QP4LSW6I3KBL46LDR5LUPB7EICYH3AMUZKN3ZOYOHHZJQYWT"
+    ],
+    "route_units": [
+      "A-warehouse",
+      "A-terminal",
+      "B-vessel",
+      "B-depot"
+    ],
+    "holder": "GBJFX4HPDQ4QQSTKDVG6FQYFXLPJEDOC4UDUURE7WNNHSZFHLX4SOEGN",
+    "final_head": "f4b1c9060941f7cb6cc345c0f9253b5ad8f2cd67e2155eafd67f6476d5477699"
+  },
+  "shipments": [
+    {
+      "container": "TEST3286578",
+      "origin": "BRRIO",
+      "key": "404c2ca977251e7c4139143161814def648a92094d5dff63c2694c89b9adddeb",
+      "docs_root": "ea3bc3be215730806fec6c9784f4730b72596fd1b387d8c0f6e71f79f4d0a058",
+      "route": [
+        "GADDDA6LRP656GCOPI5MRFSWT7NN7VKS2YLBON4LVVJTT5L4JCLDG366",
+        "GCIELVHBMY46VRGGBDQRH6OCGGI7Q553ALCDSJWIJQJHRH7EUFVJTGIC",
+        "GBDUADSFSMZSSERXK2HNVIMLAPIPN2DFLHKSH2VR3VCZBBVZINDHJNQN",
+        "GCTQX3E2QP4LSW6I3KBL46LDR5LUPB7EICYH3AMUZKN3ZOYOHHZJQYWT"
+      ],
+      "route_units": [
+        "A-warehouse",
+        "A-terminal",
+        "B-vessel",
+        "B-depot"
+      ],
+      "holder": "GBJFX4HPDQ4QQSTKDVG6FQYFXLPJEDOC4UDUURE7WNNHSZFHLX4SOEGN",
+      "final_head": "f4b1c9060941f7cb6cc345c0f9253b5ad8f2cd67e2155eafd67f6476d5477699"
+    },
+    {
+      "container": "TEST3286579",
+      "origin": "BRRIO",
+      "key": "836ec9f9bc09a08a3ef445f1bdd6d1094ba3222d8651fb2c82100274cc497b8a",
+      "docs_root": "d7ce6df949e4cbea04e53cf6e072255914c349e4b94a73967dbc6f6b87bc0093",
+      "route": [
+        "GB22KOIGHUKKL4P3EGGPEPSGVHTKXTHYUY5LPIYO5JVXVGZ4CMZE63JV",
+        "GCIELVHBMY46VRGGBDQRH6OCGGI7Q553ALCDSJWIJQJHRH7EUFVJTGIC",
+        "GBDUADSFSMZSSERXK2HNVIMLAPIPN2DFLHKSH2VR3VCZBBVZINDHJNQN"
+      ],
+      "route_units": [
+        "A-yard",
+        "A-terminal",
+        "B-vessel"
+      ],
+      "holder": "GDCLBYD4HKFBIXEIQQYOKDNRVO5XPHM6MVEYQQUPUC6RBTVWXMKKHJ55",
+      "final_head": "cb46738dfca1e9333828eddcc23380d8d8bb5272c7f0c828945939a351ea215a"
+    }
+  ],
+  "setup": [
+    {
+      "step": "custody_registry_deploy",
+      "hash": "328ceaa90b084925c2ac64c732982fa2749223dba3bd739d64b7d1ce8a6d77b7"
+    }
+  ],
+  "lifecycle": [
+    {
+      "shipment": "TEST3286578",
+      "step": "open",
+      "hash": "ac1ca8e47b03b9799aa1dc2f9e06b612a6105262428274c15b3d5d7b61a8edd3"
+    },
+    {
+      "shipment": "TEST3286579",
+      "step": "open",
+      "hash": "b189aec42c2e5202f0d72de11d4f50c9d8a41005820eb8ef47ee2cea7d65b10e"
+    },
+    {
+      "shipment": "TEST3286578",
+      "step": "handover",
+      "hash": "9a810a33610eedabd55d6c8addb8e328d264a00ffabb71cb5a95129b7826b0ba",
+      "from": "A-warehouse",
+      "to": "A-terminal",
+      "kind": "internal"
+    },
+    {
+      "shipment": "TEST3286579",
+      "step": "handover",
+      "hash": "98136578af52f769ab13079b32b340f815e39177ece7212226f54f2e5197ed24",
+      "from": "A-yard",
+      "to": "A-terminal",
+      "kind": "internal"
+    },
+    {
+      "shipment": "TEST3286578",
+      "step": "handover",
+      "hash": "7d75acbd94faa8a8e4435e31c1cd50bebf1408588554ed3c2a7abd9cde16c4e3",
+      "from": "A-terminal",
+      "to": "B-vessel",
+      "kind": "external"
+    },
+    {
+      "shipment": "TEST3286579",
+      "step": "handover",
+      "hash": "3ea5237fa295fb2abb6a612a116323ec2d76c04501c4a5344014752062b3b8f5",
+      "from": "A-terminal",
+      "to": "B-vessel",
+      "kind": "external"
+    },
+    {
+      "shipment": "TEST3286578",
+      "step": "handover",
+      "hash": "81555aa1db5c47a93f912ab3312f6b243cd449ba86f59cef59274b4d49a7b41c",
+      "from": "B-vessel",
+      "to": "B-depot",
+      "kind": "internal"
+    },
+    {
+      "shipment": "TEST3286578",
+      "step": "deliver",
+      "hash": "c0f4457107a13bc1b5a0f1004ab0b30c57572822dfb772dd69084cab50f7cc68"
+    },
+    {
+      "shipment": "TEST3286579",
+      "step": "deliver",
+      "hash": "c7aad14f25ac62eb2553db8f9f4a41014b5fc93fc37a0e39c3e751a9b1df6105"
+    }
+  ],
+  "attest": []
+}
