@@ -64,7 +64,9 @@ function build() {
   form.append(hp);
   status = el("p", { class: "acc-status", role: "status", "aria-live": "polite" });
   const submit = el("button", { type: "submit", class: "acc-send" }, "Send");
-  form.append(status, submit);
+  // LGPD art. 9: say why the data is collected, who gets it, and how to have it erased, before it is sent.
+  const notice = el("p", { class: "acc-fine" }, `We use these details only to reply to this request. They reach the Radox team by email through Resend (USA). To see or erase them, write to ${TO}.`);
+  form.append(notice, status, submit);
   form.addEventListener("submit", onSubmit);
   dialog.append(close, title, lede, form);
   dialog.addEventListener("close", () => { opener?.focus(); });

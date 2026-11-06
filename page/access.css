@@ -2,6 +2,7 @@
 .acc { width: min(32rem, calc(100vw - 2rem)); max-height: calc(100dvh - 2rem); overflow: auto; margin: auto; padding: 1.5rem; border: 1px solid hsl(var(--border, 216 14% 14%)); border-radius: var(--radius, .625rem); background: hsl(var(--card, 210 10% 8%)); color: hsl(var(--foreground, 220 7% 91%)); font-family: var(--font-body, 'Inter', system-ui, sans-serif); font-size: 16px; line-height: 1.5; box-shadow: 0 24px 64px hsl(0 0% 0% / .5); }
 .acc::backdrop { background: hsl(220 10% 3% / .72); }
 .acc h2 { margin: 0 2rem .4rem 0; font-size: 24px; font-weight: 700; letter-spacing: -0.02em; line-height: 1.2; }
+.acc .acc-fine { margin: 0 0 .75rem; font-size: 13px; color: hsl(var(--muted-foreground, 219 7% 57%)); }
 .acc .acc-lede { margin: 0 0 1.25rem; font-size: 15px; color: hsl(var(--muted-foreground, 219 7% 57%)); }
 .acc form { display: grid; gap: .9rem; }
 .acc-f { display: grid; gap: .3rem; min-width: 0; }
