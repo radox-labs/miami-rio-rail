@@ -1,6 +1,6 @@
 # Radox Rail
 
-**Você conferir os contratos que estão listados abaixos nesse repositório** -> [Acessar Radox Contracts](https://github.com/radox-labs/radox-contracts)
+**Você conferir os contratos que estão listados abaixo nesse repositório** -> [Acessar Radox Contracts](https://github.com/radox-labs/radox-contracts)
 
 
 > **Versão `miami-rio-rail` para `radox-labs`.** Esta é uma cópia independente do projeto original
