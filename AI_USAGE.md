@@ -4,6 +4,8 @@ The hackathon rules require attribution of AI-generated work. One line per file 
 
 AI model for the contract, harness and proofs rows: Claude Opus 5.5 (`claude-opus-5-5`) in Claude Code, its review subagents included. Some review subagents for public text (README, form answers, deck) ran on Claude Sonnet 5.5 (`claude-sonnet-5-5`). Rows that used another model name it in the row.
 
+The sessions were coordinated with [chief-of-staff](https://github.com/pwsaragossy/chief-of-staff), a Claude Code plugin we built and use for this project: one coordinator session, parallel work sessions with written handoffs, specialist role cards and an independent reviewer for public text.
+
 | Path | Made with | Human review |
 |---|---|---|
 | `Cargo.toml`, `Cargo.lock`, `contracts/custody_registry/Cargo.toml` | AI coding agent | Leo: dependency pin (soroban-sdk 29.0.1) and licence field |

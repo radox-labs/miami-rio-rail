@@ -1,6 +1,6 @@
 # Custody record: a proposed open spec (v0.1)
 
-Status: **proposed open spec**, draft v0.1, 2026-10-25. It describes the custody record kept by `custody_registry`. Reference implementation: [`radox-labs/radox-contracts`](https://github.com/radox-labs/radox-contracts/tree/main/contracts/custody_registry), running on Stellar testnet. The custody contract is Apache-2.0 licensed.
+Status: **proposed open spec**, draft v0.1, 2026-10-25. It describes the custody record kept by `custody_registry`. Reference implementation: [`radox-labs/radox-contracts`](https://github.com/radox-labs/radox-contracts/tree/main/contracts/custody_registry), deployed on Stellar mainnet since 26 October 2026 (contract `CDV7YI7KYTDH4LPOLVUVRTFERJKYOWBBT6KS56ZX3V7EOGDBWS7LD4UP`); the live vector below comes from the earlier testnet demo. The custody contract is Apache-2.0 licensed.
 
 Our goal is a shared custody format that companies along a supply chain could use, from origin to destination. This document is the first step towards that: it writes down the record format, so that someone other than us can check the record, implement it or argue about it.
 

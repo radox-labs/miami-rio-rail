@@ -1,20 +1,19 @@
 # Radox Rail
 
-**Você conferir os contratos que estão listados abaixo nesse repositório** -> [Acessar Radox Contracts](https://github.com/radox-labs/radox-contracts)
+**The contracts listed below now live in [radox-labs/radox-contracts](https://github.com/radox-labs/radox-contracts).** This repository keeps the HackMeridian demo, the sandbox API, the proofs and the corridor scripts, open so anyone can check our work.
 
 
-> **Versão `miami-rio-rail` para `radox-labs`.** Esta é uma cópia independente do projeto original
-> `pwsaragossy/radox-rail`. O código e os testes de `custody_registry` foram movidos
-> para `radox-labs/radox-contracts`; o Rail mantém a demonstração, a API sandbox,
-> as provas e os scripts específicos do corredor. O texto abaixo documenta também
-> a implementação e as provas históricas do hackathon; referências a caminhos
-> `contracts/custody_registry` devem ser lidas no repositório de contratos.
+> **`miami-rio-rail` for `radox-labs`.** An independent copy of the original hackathon project
+> `pwsaragossy/radox-rail`. The `custody_registry` code and tests moved to
+> `radox-labs/radox-contracts`; this repository keeps the demo, the sandbox API, the proofs and the
+> corridor scripts. The text below also documents the hackathon implementation and its proofs; read
+> paths under `contracts/custody_registry` in the contracts repository.
 
-**A container crosses a border through several companies and agencies (for example a warehouse, a port, a carrier, customs and the buyer), and each keeps its own records. No record is shared among them, so none of them can check what the others say about who held the goods. The money that rides on those records is large: the WTO says 80 to 90 per cent of world trade relies on trade finance. Radox Rail is a shared record that each company on the route signs into, like SWIFT for goods: at each handover, the company giving the goods and the company receiving them both sign, the step is added to a hash chain that no one can rewrite (an administrator can freeze a shipment but cannot change past steps), and anyone who needs to know (the buyer, an insurer, a lender) can check the whole history against one 32-byte value stored on the contract. This repo is its first piece, running on Stellar testnet: a Soroban contract where every handover is authorised by both custodians, hash-chained, and checkable by anyone from public data.**
+**A container crosses a border through several companies and agencies (for example a warehouse, a port, a carrier, customs and the buyer), and each keeps its own records. No record is shared among them, so none of them can check what the others say about who held the goods. The money that rides on those records is large: the WTO says 80 to 90 per cent of world trade relies on trade finance. Radox Rail is a shared record that each company on the route signs into, like SWIFT for goods: at each handover, the company giving the goods and the company receiving them both sign, the step is added to a hash chain that no one can rewrite (an administrator can freeze a shipment but cannot change past steps), and anyone who needs to know (the buyer, an insurer, a lender) can check the whole history against one 32-byte value stored on the contract. This repo is its first piece, built on Stellar testnet and deployed to mainnet on 26 October 2026: a Soroban contract where every handover is authorised by both custodians, hash-chained, and checkable by anyone from public data.**
 
 *First corridor: Rio–Miami.*
 
-Live page: <https://rio-miami-rail.vercel.app> · Video: {{fill: video URL}} · Network: Stellar **testnet demo; mainnet proof with test accounts** · Licence: Apache-2.0
+Live page: <https://rio-miami-rail.vercel.app> · Network: Stellar **testnet demo; mainnet proof with test accounts** · Licence: Apache-2.0
 
 ## Problem
 
