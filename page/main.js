@@ -413,17 +413,23 @@ function dRender() {
   DM.wallets.hidden = done; DM.read.hidden = !done; runBtn.hidden = !done; DM.reset.hidden = !done;
   if (done) { DM.step.textContent = "Delivered. Now read it the way a buyer or insurer would:"; return; }
   const from = COMPANIES[hop][1], to = COMPANIES[hop + 1][1];
-  DM.step.textContent = `Handover ${hop + 1} of 4: ${from} gives the coffee to ${to}.` + (signed[0] !== signed[1] ? ` Waiting for ${signed[0] ? to : from} to sign.` : "");
+  DM.step.textContent = `Handover ${hop + 1} of 4: ${from} gives the coffee to ${to}.` + (signed[0] && signed[1] ? " Both signed. The coffee moves." : signed[0] !== signed[1] ? ` Waiting for ${signed[0] ? to : from} to sign.` : "");
   [[DM.a, from, 0], [DM.b, to, 1]].forEach(([btn, who, k]) => { btn.textContent = signed[k] ? `${who} signed ✓` : `Sign as ${who}`; btn.classList.toggle("done", signed[k]); btn.disabled = signed[k]; });
 }
 function dSign(k) {
   if (hop >= COMPANIES.length - 1) return;
+  if (signed[k]) return;
   signed[k] = true;
-  if (signed[0] && signed[1]) {
-    DM.rec.insertAdjacentHTML("beforeend", `<li><span>${COMPANIES[hop][1]} → ${COMPANIES[hop + 1][1]}</span><span>practice signatures ${icon("check-check")}</span></li>`);
-    hop++; signed = [false, false];
-  }
   dRender();
+  if (signed[0] && signed[1]) {
+    // hold the two signatures on screen before the coffee moves, so both are visible
+    const h = hop;
+    setTimeout(() => {
+      if (hop !== h || !(signed[0] && signed[1])) return; // reset during the pause
+      DM.rec.insertAdjacentHTML("beforeend", `<li><span>${COMPANIES[hop][1]} → ${COMPANIES[hop + 1][1]}</span><span>practice signatures ${icon("check-check")}</span></li>`);
+      hop++; signed = [false, false]; dRender();
+    }, 1200);
+  }
 }
 DM.a.addEventListener("click", () => dSign(0));
 DM.b.addEventListener("click", () => dSign(1));
