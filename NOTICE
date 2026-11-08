@@ -19,13 +19,7 @@ License (https://gsap.com/standard-license), which is not an open-source licence
 page/vendor/icons.js holds the inner SVG markup of the Lucide 0.460.0 icons the page uses (https://lucide.dev),
 ISC License, copyright Lucide Contributors and, for portions from Feather, Cole Bemis (MIT);
 licence in page/vendor/LICENSE-lucide.txt.
-page/logos/ holds the marks of the organisations named on the page, used only to identify them. Each is a
-trademark of its owner and is not covered by this repository's licence. Taken 2026-10-26 from the owner's own site:
-- cisbra.png: CISBRA, Camara de Comercio, Industria e Servicos do Brasil; horizontal logo from
-  https://www.cisbra.org.br (static.wixstatic.com/media/0532de_cee67a2f1cbf4412b5c672602ffe1077~mv2.png),
-  converted to greyscale and resized; shape and proportions unchanged.
-- camacol.png: CAMACOL, Latin Chamber of Commerce of the USA; header logo from https://camacol.org
-  (wp-content/uploads/thegem/logos/logo_266be408c5cd92a49c194194d72cd04a_3x.png), shown as a one-colour
-  light version (ink taken from the original's tones) and resized; shape and proportions unchanged.
+page/logos/ holds the Stellar mark, used only to identify it. It is a trademark of its owner and is not covered
+by this repository's licence. Taken 2026-10-26 from the owner's own site:
 - stellar.svg: Stellar logo, Stellar Development Foundation; official white logo from the Logo Press Kit 2026 at
   https://stellar.org/brand-resources, converted from the vector PDF to SVG and trimmed to the artwork, unmodified.
