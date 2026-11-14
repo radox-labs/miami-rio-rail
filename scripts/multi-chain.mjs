@@ -19,9 +19,10 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { Address, Operation, nativeToScVal } from "@stellar/stellar-sdk";
 import { HORIZON, addr, sleep, fund, invokeOp, call, read, random } from "./lib/stellar.mjs";
+import { wasmHash } from "./lib/contracts-lock.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
-const REGISTRY_WASM = process.env.REGISTRY_WASM_HASH ?? "8230ed937f443e40054d0806c9cdd044ef341db19f0c1b3123c573adb7a41342";
+const REGISTRY_WASM = process.env.REGISTRY_WASM_HASH ?? wasmHash("custody_registry");
 const TOKEN = "CBCWTIT5YNPNSA4ZSJJXUFZKGQROZPWNWYNZ4CSO7HLWJXU7Z6N5Q22Z"; // the demo's cargo token, recorded only
 
 const sha = (s) => createHash("sha256").update(s).digest();
