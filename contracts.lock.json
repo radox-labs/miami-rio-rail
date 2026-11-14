@@ -1,0 +1,40 @@
+{
+  "$comment": "Soroban contracts this repo consumes. Source of truth: radox-labs/radox-contracts at `commit`. Scripts read wasm hashes from here through scripts/lib/contracts-lock.mjs; check the chain against it with `node scripts/verify-contracts-lock.mjs`.",
+  "repo": "radox-labs/radox-contracts",
+  "commit": "d282f7b655ea6d180eb4f3f15d8d3a431913bc67",
+  "contracts": {
+    "custody_registry": {
+      "path": "contracts/custody_registry",
+      "rustc": "1.99.1",
+      "stellar_cli": "28.1.0",
+      "soroban_sdk": "29.0.1",
+      "wasm_sha256": "8230ed937f443e40054d0806c9cdd044ef341db19f0c1b3123c573adb7a41342",
+      "reproducible_from_commit": true,
+      "deployments": {
+        "testnet": {
+          "demo": "CCBJVXMJYWPHTDJHDFPRGKPGXGEP24JOPJAMUS5C3BMZJTRTWR2H4LII",
+          "sandbox": "CBTHLSQXQNEZ25UMVRP5TGOCPOTJXLFISJ2EF5NRNITAZPGMMW656ERX",
+          "three_machine": "CD7BUCY3DC7GTHRWFRBHNOFPMGVCHFDL4LHKXZNGEJISSGHI24KSNH3F",
+          "multi_chain": "CDDWEENF6DKM4AHFWDBHQTYPLC3STMVFPXHXYDORLD53WDZM3FF3KJX4"
+        },
+        "mainnet": {
+          "proof": "CDV7YI7KYTDH4LPOLVUVRTFERJKYOWBBT6KS56ZX3V7EOGDBWS7LD4UP"
+        }
+      }
+    },
+    "transfer_agent": {
+      "path": "contracts/transfer_agent",
+      "rustc": "1.86.0",
+      "stellar_cli": "28.1.0",
+      "soroban_sdk": "25.3.0",
+      "wasm_sha256": "3870748b709f7b8531c7ebbbc975712333f61949831350ff7192f7076fc6bff1",
+      "reproducible_from_commit": false,
+      "$note": "v5 (version() = 5), built 2026-10-06 before the source moved to radox-contracts (radox-core docs/Operations/PROVA_TRANSFER_AGENT_PAUSER_2026-10-06.md). Same interface and toolchain as `commit`, but `stellar contract build` there gives 5915649c2fd4ab6aaa93fe90ae718fb8d26826ea39190257f584577cee8e3576, 2 bytes apart. The Rail keeps using the installed testnet wasm as-is.",
+      "deployments": {
+        "testnet": {
+          "lifecycle_instance": "CAYD3EFTN6YOHMHJ5C62WYGABBIN2G6MV5MLHUKWV2EVJP5FFTKXSJWH"
+        }
+      }
+    }
+  }
+}
