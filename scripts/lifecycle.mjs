@@ -17,9 +17,10 @@ import {
   nativeToScVal,
 } from "@stellar/stellar-sdk";
 import { HORIZON, server, addr, sleep, fund, sendClassic, invokeOp, call, read, random } from "./lib/stellar.mjs";
+import { wasmHash } from "./lib/contracts-lock.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
-const REGISTRY_WASM = process.env.REGISTRY_WASM_HASH ?? "8230ed937f443e40054d0806c9cdd044ef341db19f0c1b3123c573adb7a41342";
+const REGISTRY_WASM = process.env.REGISTRY_WASM_HASH ?? wasmHash("custody_registry");
 // External Radox interfaces (closed source — part of Radox's prior startup implementations
 // built before HackMeridian; not public because they belong to the startup's proprietary
 // platform backend and regulated token-issuance/settlement money path):
@@ -45,7 +46,7 @@ const REGISTRY_WASM = process.env.REGISTRY_WASM_HASH ?? "8230ed937f443e40054d080
 //    - Behavior: read-only Soroban RPC `simulateTransaction` calling `custody_registry.get(key)`.
 //    - Output (200 OK): `{ success: true, data: { key, contract, status, currentCustodian, route, seq, head, holder } }`
 //    - Errors: `400 E_CUSTODY_KEY` (invalid key format), `404 E_CUSTODY_NOT_FOUND` (unknown key).
-const AGENT_WASM = "3870748b709f7b8531c7ebbbc975712333f61949831350ff7192f7076fc6bff1"; // prior work, deployed as-is
+const AGENT_WASM = wasmHash("transfer_agent"); // prior work, deployed as-is (see contracts.lock.json)
 const AMOUNT = 10000000n; // 1.0000000 of a 7-decimal asset
 const REF_ID = 1n;
 

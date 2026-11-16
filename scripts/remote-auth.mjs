@@ -26,8 +26,9 @@ import {
   Keypair, Operation, Address, TransactionBuilder, rpc, xdr, nativeToScVal, scValToNative, authorizeEntry,
 } from "@stellar/stellar-sdk";
 import { NET, HORIZON, server, addr, sleep, call, read, invokeOp, waitFor } from "./lib/stellar.mjs";
+import { wasmHash } from "./lib/contracts-lock.mjs";
 
-const REGISTRY_WASM = process.env.REGISTRY_WASM_HASH ?? "8230ed937f443e40054d0806c9cdd044ef341db19f0c1b3123c573adb7a41342";
+const REGISTRY_WASM = process.env.REGISTRY_WASM_HASH ?? wasmHash("custody_registry");
 const TOKEN = "CBCWTIT5YNPNSA4ZSJJXUFZKGQROZPWNWYNZ4CSO7HLWJXU7Z6N5Q22Z"; // the asset contract of proofs/lifecycle.json
 const MAX_DAYS = 7;          // sign refuses a request valid for longer
 const LEDGER_S = 5;          // testnet closes a ledger about every 5 s

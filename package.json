@@ -7,7 +7,8 @@
   "engines": { "node": ">=20" },
   "scripts": {
     "lifecycle": "node scripts/lifecycle.mjs",
-    "verify-head": "node scripts/verify-head.mjs"
+    "verify-head": "node scripts/verify-head.mjs",
+    "verify-contracts-lock": "node scripts/verify-contracts-lock.mjs"
   },
   "dependencies": {
     "@stellar/stellar-sdk": "17.3.0"

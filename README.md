@@ -90,21 +90,25 @@ Add `--offline` to `verify-head.mjs` to check against the saved copies in `proof
 |---|---|
 | Node.js | 20 or newer (26.12.0 here) |
 | `@stellar/stellar-sdk` | 17.3.0 (pinned in `package.json`) |
-| Rust | 1.97.1, targets `wasm32v1-none` and the host target |
+| Rust | 1.99.1, targets `wasm32v1-none` and the host target (pinned by `contracts/custody_registry/rust-toolchain.toml` in radox-contracts once radox-labs/radox-contracts#1 is merged). The wasm on chain records `rsver 1.99.1` (`stellar contract info meta`, checked 2026-11-14), and building with 1.97.1, the version this table listed before, gives a different hash (`b62d8e7d…f914`) |
 | Stellar CLI | 28.1.0 |
 | `soroban-sdk` | 29.0.1 |
 
+The contract source this repo uses is pinned in `contracts.lock.json` (repository, commit, wasm sha256 and contract IDs per network). Scripts read the wasm hashes from there through `scripts/lib/contracts-lock.mjs`.
+
 ```sh
+git -C ../radox-contracts checkout "$(node -p 'require("./contracts.lock.json").commit')"
 cd ../radox-contracts/contracts/custody_registry
 cargo test                     # contract tests run in the contract repository
-stellar contract build         # builds the wasm in this independent crate
+stellar contract build         # sha256 of the wasm must equal wasm_sha256 in contracts.lock.json
+cd - && node scripts/verify-contracts-lock.mjs   # read-only: on-chain wasm of every locked contract ID
 ```
 
 Environment variables, all optional; defaults point at public testnet endpoints:
 
 - `HORIZON_URL`, `RPC_URL`: override the Horizon and Soroban RPC endpoints.
 - `REGISTRY`, `EXPORTER_SECRET`, `OPERATOR_SECRET`: only for `npm run lifecycle`, to reuse an existing registry and its admin and operator. Without them the harness deploys its own registry and generates fresh test keys, never written to disk.
-- `REGISTRY_WASM_HASH`: wasm hash for that deploy.
+- `REGISTRY_WASM_HASH`: wasm hash for that deploy (default: `custody_registry` in `contracts.lock.json`).
 
 The **Request access** form on the page posts to `POST /api/access` (`page/api/access.js`, at most 3 requests per 10 minutes per IP), which emails the team through Resend. Vercel environment variables:
 

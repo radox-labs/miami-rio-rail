@@ -20,6 +20,7 @@ import { promisify } from "node:util";
 import { fileURLToPath } from "node:url";
 import { Asset, Address, Keypair, Networks, Operation, TransactionBuilder, nativeToScVal, rpc, xdr } from "@stellar/stellar-sdk";
 import { RPC_URL, NET, addr, invokeOp, call, read, sendClassic } from "./lib/stellar.mjs";
+import { wasmHash } from "./lib/contracts-lock.mjs";
 
 const fork = /^http:\/\/(127\.0\.0\.1|localhost)[:/]/.test(RPC_URL);
 if (NET !== Networks.PUBLIC) throw new Error("NETWORK_PASSPHRASE must be the PUBLIC (mainnet) passphrase");
@@ -28,7 +29,7 @@ const net = await new rpc.Server(RPC_URL, { allowHttp: fork }).getNetwork();
 if (net.passphrase !== Networks.PUBLIC) throw new Error(`RPC is on "${net.passphrase}", not mainnet`);
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
-const WASM_HASH = "8230ed937f443e40054d0806c9cdd044ef341db19f0c1b3123c573adb7a41342";
+const WASM_HASH = wasmHash("custody_registry");
 const sha = (s) => createHash("sha256").update(s).digest();
 const b32 = (b) => nativeToScVal(b, { type: "bytes" });
 const u32 = (n) => nativeToScVal(n, { type: "u32" });
