@@ -1,7 +1,7 @@
 {
   "$comment": "Soroban contracts this repo consumes. Source of truth: radox-labs/radox-contracts at `commit`. Scripts read wasm hashes from here through scripts/lib/contracts-lock.mjs; check the chain against it with `node scripts/verify-contracts-lock.mjs`.",
   "repo": "radox-labs/radox-contracts",
-  "commit": "d282f7b655ea6d180eb4f3f15d8d3a431913bc67",
+  "commit": "913798376f6fb658cff25117793f3c2007dbd390",
   "contracts": {
     "custody_registry": {
       "path": "contracts/custody_registry",
