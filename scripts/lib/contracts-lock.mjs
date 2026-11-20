@@ -5,11 +5,15 @@
 import { readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
+import { lintLock } from "./lock-rules.mjs";
 
 export const LOCK_PATH = join(dirname(fileURLToPath(import.meta.url)), "..", "..", "contracts.lock.json");
 export const lock = JSON.parse(readFileSync(LOCK_PATH, "utf8"));
 
 export function contract(name) {
+  // Never hand out a hash from a lock that breaks the rules (e.g. a `testing` build).
+  const { errors } = lintLock(lock);
+  if (errors.length) throw new Error(`contracts.lock.json refused: ${errors.join("; ")}`);
   const c = lock.contracts?.[name];
   if (!c) throw new Error(`contracts.lock.json: no entry for ${name}`);
   return c;

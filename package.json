@@ -8,7 +8,8 @@
   "scripts": {
     "lifecycle": "node scripts/lifecycle.mjs",
     "verify-head": "node scripts/verify-head.mjs",
-    "verify-contracts-lock": "node scripts/verify-contracts-lock.mjs"
+    "verify-contracts-lock": "node scripts/verify-contracts-lock.mjs",
+    "test:lock": "node --test scripts/verify-contracts-lock.test.mjs"
   },
   "dependencies": {
     "@stellar/stellar-sdk": "17.3.0"

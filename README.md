@@ -97,12 +97,12 @@ Add `--offline` to `verify-head.mjs` to check against the saved copies in `proof
 The contract source this repo uses is pinned in `contracts.lock.json` (repository, commit, wasm sha256 and contract IDs per network). Scripts read the wasm hashes from there through `scripts/lib/contracts-lock.mjs`.
 
 ```sh
-git -C ../radox-contracts checkout "$(node -p 'require("./contracts.lock.json").commit')"
-cd ../radox-contracts/contracts/custody_registry
-cargo test                     # contract tests run in the contract repository
-stellar contract build         # sha256 of the wasm must equal wasm_sha256 in contracts.lock.json
-cd - && node scripts/verify-contracts-lock.mjs   # read-only: on-chain wasm of every locked contract ID
+node scripts/verify-contracts-lock.mjs --rebuild   # clean checkout of lock.commit, rebuild, sha256 must equal wasm_sha256
+node scripts/verify-contracts-lock.mjs             # read-only: on-chain wasm of every locked contract ID
+node --test scripts/verify-contracts-lock.test.mjs # verifier unit tests (no network, no cargo)
 ```
+
+Each lock entry is one build variant: `features` (exact list; the build always passes `--no-default-features`, because `token_sale` and `transfer_agent` default to the test-only `testing` feature), `network` (where that wasm may run) and its `wasm_sha256`. Every mode refuses (exit 1) an entry with `testing`, without `--no-default-features`, or with a deployment outside its `network`. `--rebuild` fetches `lock.commit` into `~/.cache/radox-contracts-rail/<commit>` (override with `RAIL_CONTRACTS_CACHE`), refuses a checkout whose HEAD differs or whose tree is dirty (before and after the build), refuses a `rust-toolchain.toml`, `rustc` or `stellar --version` different from the lock, and builds with `stellar contract build --locked --no-default-features [--features …]`. `legacy: true` entries (the testnet `transfer_agent` wasm `3870748b…`, kept as installed) are not rebuilt and only warn. It needs git, node, rustup with the lock's `rustc` and `wasm32v1-none`, and stellar-cli; no `npm ci`. Contract tests run in radox-contracts (`cargo test`).
 
 Environment variables, all optional; defaults point at public testnet endpoints:
 

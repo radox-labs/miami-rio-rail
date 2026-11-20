@@ -5,7 +5,7 @@
 | What | Value |
 |---|---|
 | custody_registry contract | `CCBJVXMJYWPHTDJHDFPRGKPGXGEP24JOPJAMUS5C3BMZJTRTWR2H4LII` |
-| wasm hash | `8230ed937f443e40054d0806c9cdd044ef341db19f0c1b3123c573adb7a41342` (sha256 of `target/wasm32v1-none/release/custody_registry.wasm`). Built on 2026-10-25 from commit 9b66e00 of the original rail repository; the same bytes now come from `radox-labs/radox-contracts` at the commit in `contracts.lock.json` (rustc 1.99.1, stellar-cli 28.1.0), and `node scripts/verify-contracts-lock.mjs` checks every contract ID against it |
+| wasm hash | `8230ed937f443e40054d0806c9cdd044ef341db19f0c1b3123c573adb7a41342` (sha256 of `target/wasm32v1-none/release/custody_registry.wasm`). Built on 2026-10-25 from commit 9b66e00 of the original rail repository; the same bytes now come from `radox-labs/radox-contracts` at the commit in `contracts.lock.json` (rustc 1.99.1, stellar-cli 28.1.0), built with `stellar contract build --locked --no-default-features` (`features: []`, same hash as with the crate defaults, which have no features). `node scripts/verify-contracts-lock.mjs --rebuild` rebuilds it from a clean checkout and compares the sha256 (2026-11-20: equal), and `node scripts/verify-contracts-lock.mjs` checks every contract ID against it |
 | admin (exporter) | `GAKTDHZIKXNSO7TIAQJAZPZBDLPKYONHDZYQBPYORQPYAH5UYAE7OAHZ` |
 | operator (rail operator) | `GCXYI6RYMJQUNO2VFBPUTZ55WBRFVGBTZBOW3YF65ABLGPNNSHX3J4OF` |
 | toolchain | soroban-sdk 29.0.1, stellar CLI 28.1.0, protocol 29 |
