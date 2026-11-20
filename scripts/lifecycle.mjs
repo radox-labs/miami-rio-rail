@@ -20,7 +20,7 @@ import { HORIZON, server, addr, sleep, fund, sendClassic, invokeOp, call, read, 
 import { wasmHash } from "./lib/contracts-lock.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
-const REGISTRY_WASM = process.env.REGISTRY_WASM_HASH ?? wasmHash("custody_registry");
+const REGISTRY_WASM = process.env.REGISTRY_WASM_HASH ?? wasmHash("custody_registry", { network: "testnet" });
 // External Radox interfaces (closed source — part of Radox's prior startup implementations
 // built before HackMeridian; not public because they belong to the startup's proprietary
 // platform backend and regulated token-issuance/settlement money path):
@@ -46,7 +46,7 @@ const REGISTRY_WASM = process.env.REGISTRY_WASM_HASH ?? wasmHash("custody_regist
 //    - Behavior: read-only Soroban RPC `simulateTransaction` calling `custody_registry.get(key)`.
 //    - Output (200 OK): `{ success: true, data: { key, contract, status, currentCustodian, route, seq, head, holder } }`
 //    - Errors: `400 E_CUSTODY_KEY` (invalid key format), `404 E_CUSTODY_NOT_FOUND` (unknown key).
-const AGENT_WASM = wasmHash("transfer_agent"); // prior work, deployed as-is (see contracts.lock.json)
+const AGENT_WASM = wasmHash("transfer_agent", { network: "testnet" }); // prior work, deployed as-is (see contracts.lock.json)
 const AMOUNT = 10000000n; // 1.0000000 of a 7-decimal asset
 const REF_ID = 1n;
 

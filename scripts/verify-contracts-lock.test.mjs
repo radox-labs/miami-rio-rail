@@ -8,7 +8,7 @@ import os from "node:os";
 import path from "node:path";
 import { test } from "node:test";
 import { fileURLToPath } from "node:url";
-import { cargoFeatures, checkAgainstCrate, lintLock } from "./lib/lock-rules.mjs";
+import { cargoFeatures, checkAgainstCrate, featureClosure, lintLock } from "./lib/lock-rules.mjs";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const CLI = path.join(HERE, "verify-contracts-lock.mjs");
@@ -53,6 +53,20 @@ const MUTATIONS = {
   "reproducible flipped": (c) => { c.reproducible = !c.reproducible; },
   "bad wasm hash": (c) => { c.wasm_sha256 = c.wasm_sha256.slice(1); },
   "rustc missing": (c) => { delete c.rustc; },
+  // qa r1 A1: `default` turns the crate defaults (`testing`) back on, alone or with a network feature.
+  "explicit default": (c) => { c.features = ["default"]; c.no_default_features = true; },
+  "default + network feature": (c) => { c.features = ["default", "testnet"]; c.network = ["testnet"]; },
+  "Testing (case)": (c) => { c.features = ["Testing"]; },
+  "testutils": (c) => { c.features = ["testutils"]; },
+  "dependency testutils": (c) => { c.features = ["soroban-sdk/testutils"]; },
+  "feature outside the allowlist": (c) => { c.features = ["extra"]; },
+  "network feature on two networks": (c) => { c.features = ["testnet"]; c.network = ["testnet", "mainnet"]; },
+  "network feature for the other network": (c) => { c.features = ["mainnet"]; c.network = ["testnet"]; c.deployments = { testnet: {} }; },
+  // qa r1 A2: path must stay a crate dir of the checkout.
+  "path with ..": (c) => { c.path = "../evil/contracts/custody_registry"; },
+  "path absolute": (c) => { c.path = "/tmp/evil/contracts/custody_registry"; },
+  "path nested": (c) => { c.path = "contracts/custody_registry/../../evil"; },
+  // qa r1 A3: only transfer_agent may be legacy.
 };
 for (const name of Object.keys(REAL.contracts)) {
   for (const [label, mutate] of Object.entries(MUTATIONS)) {
@@ -82,16 +96,78 @@ test("legacy cannot be used as a way around the rules", () => {
   }
 });
 
-test("the lock reader refuses a lock that breaks the rules", () => {
+// The lock reader used by lifecycle, mainnet-deploy etc., against a given lock.
+function reader(lock, call) {
   const dir = tmp();
   fs.cpSync(path.join(HERE, "lib"), path.join(dir, "scripts", "lib"), { recursive: true });
-  const bad = clone(REAL);
-  bad.contracts.custody_registry.features = ["testing"];
-  fs.writeFileSync(path.join(dir, "contracts.lock.json"), JSON.stringify(bad));
+  fs.writeFileSync(path.join(dir, "contracts.lock.json"), JSON.stringify(lock));
   const r = spawnSync(process.execPath, ["--input-type=module", "-e",
-    `import { wasmHash } from ${JSON.stringify(path.join(dir, "scripts", "lib", "contracts-lock.mjs"))}; wasmHash("custody_registry");`], { encoding: "utf8" });
-  assert.notEqual(r.status, 0);
-  assert.match(r.stderr, /refused/);
+    `import { wasmHash } from ${JSON.stringify(path.join(dir, "scripts", "lib", "contracts-lock.mjs"))}; console.log(${call});`], { encoding: "utf8" });
+  return { code: r.status, out: r.stdout.trim(), err: r.stderr };
+}
+const TESTNET = '{ network: "testnet" }';
+const MAINNET = '{ network: "mainnet" }';
+
+test("the lock reader refuses every mutated lock (same rules as the CLI)", () => {
+  for (const name of Object.keys(REAL.contracts)) {
+    for (const [label, mutate] of Object.entries(MUTATIONS)) {
+      const lock = clone(REAL);
+      mutate(lock.contracts[name]);
+      const r = reader(lock, `wasmHash("custody_registry", ${TESTNET})`);
+      assert.notEqual(r.code, 0, `${label} on ${name}: reader handed out ${r.out}`);
+      assert.match(r.err, /refused/);
+    }
+  }
+});
+
+test("wasmHash needs a network; mainnet only from a reproducible non-legacy entry", () => {
+  assert.equal(reader(REAL, `wasmHash("custody_registry", ${TESTNET})`).out, REAL.contracts.custody_registry.wasm_sha256);
+  assert.equal(reader(REAL, `wasmHash("custody_registry", ${MAINNET})`).out, REAL.contracts.custody_registry.wasm_sha256);
+  assert.equal(reader(REAL, `wasmHash("transfer_agent", ${TESTNET})`).out, REAL.contracts.transfer_agent.wasm_sha256);
+  for (const call of [`wasmHash("custody_registry")`, `wasmHash("custody_registry", {})`, `wasmHash("custody_registry", { network: "futurenet" })`]) {
+    const r = reader(REAL, call);
+    assert.notEqual(r.code, 0, call);
+    assert.match(r.err, /pass \{ network/);
+  }
+  const r = reader(REAL, `wasmHash("transfer_agent", ${MAINNET})`);
+  assert.notEqual(r.code, 0);
+  assert.match(r.err, /not built for mainnet/);
+  // A non-legacy testnet-only variant cannot be used on mainnet either.
+  const tn = clone(REAL);
+  tn.contracts.custody_registry.network = ["testnet"];
+  delete tn.contracts.custody_registry.deployments.mainnet;
+  assert.match(reader(tn, `wasmHash("custody_registry", ${MAINNET})`).err, /not built for mainnet/);
+});
+
+test("custody_registry cannot be demoted to legacy (qa cr_legacy), in every mode", () => {
+  for (const keepMainnet of [true, false]) {
+    const lock = clone(REAL);
+    const c = lock.contracts.custody_registry;
+    Object.assign(c, { legacy: true, reproducible: false, features: null, no_default_features: null, network: ["testnet"], wasm_sha256: "ab".repeat(32) });
+    if (!keepMainnet) c.deployments = {};
+    else delete c.deployments.mainnet;
+    assert.match(lintLock(lock).errors.join(), /only transfer_agent may be legacy/);
+    for (const args of [["--static"], ["--rebuild"], []]) assert.equal(run(lock, args).code, 1, args.join());
+    assert.notEqual(reader(lock, `wasmHash("custody_registry", ${TESTNET})`).code, 0);
+    assert.notEqual(reader(lock, `wasmHash("custody_registry", ${MAINNET})`).code, 0);
+  }
+});
+
+test("token_sale: `default` with a network feature is refused; the network feature alone passes", () => {
+  const ts = {
+    path: "contracts/token_sale", rustc: "1.86.0", stellar_cli: "28.1.0", soroban_sdk: "25.3.0",
+    network: ["testnet"], features: ["testnet"], no_default_features: true,
+    wasm_sha256: "cd".repeat(32), legacy: false, reproducible: true, deployments: {},
+  };
+  const ok = clone(REAL);
+  ok.contracts.token_sale = ts;
+  assert.deepEqual(lintLock(ok).errors, []);
+  for (const features of [["default", "testnet"], ["default"], ["testnet", "testing"], ["mainnet"]]) {
+    const lock = clone(ok);
+    lock.contracts.token_sale.features = features;
+    for (const args of [["--static"], ["--rebuild"]]) assert.equal(run(lock, args).code, 1, `${features} ${args}`);
+    assert.notEqual(reader(lock, `wasmHash("token_sale", ${TESTNET})`).code, 0, String(features));
+  }
 });
 
 test("Cargo.toml [features] parser and crate rules", () => {
@@ -106,6 +182,12 @@ test("Cargo.toml [features] parser and crate rules", () => {
   assert.match(errs({ features: [] }).join(), /needs feature testnet/);
   assert.match(errs({ features: ["mainnet"] }).join(), /does not match network/);
   assert.match(errs({}, 'channel = "1.99.1"').join(), /rust-toolchain\.toml channel 1\.99\.1 != lock rustc 1\.86\.0/);
+  // Transitive: a network feature that switches on testing (directly, via another feature, or a dep) is refused.
+  for (const testnet of ['["testing"]', '["helper"]', '["soroban-sdk/testutils"]', '["dep:x", "x/Testing"]']) {
+    const t = `[features]\ndefault = []\ntestnet = ${testnet}\nhelper = ["testing"]\ntesting = []\n`;
+    assert.match(checkAgainstCrate("token_sale", ok, { cargoToml: t, toolchainToml: null }).join(), /turn on/, testnet);
+  }
+  assert.deepEqual(featureClosure({ a: ["b"], b: ["c", "a"], c: [] }, ["a"]), ["a", "b", "c"]);
 });
 
 // --rebuild against a local git repo and fake stellar/rustc on PATH.
@@ -118,6 +200,12 @@ function fixture({ toolchain = "1.99.1", stellarVersion = "28.1.0", rustcVersion
   fs.writeFileSync(path.join(crate, "rust-toolchain.toml"), `[toolchain]\nchannel = "${toolchain}"\n`);
   fs.mkdirSync(path.join(src, "contracts", "transfer_agent"), { recursive: true });
   fs.writeFileSync(path.join(src, "contracts", "transfer_agent", "Cargo.toml"), `[features]\ndefault = ["testing"]\ntesting = []\n`);
+  // A committed symlink that points out of the checkout (qa r1 A2).
+  const outside = path.join(root, "outside");
+  fs.mkdirSync(outside);
+  fs.writeFileSync(path.join(outside, "Cargo.toml"), `[package]\nname = "linked"\n`);
+  fs.writeFileSync(path.join(outside, "rust-toolchain.toml"), `[toolchain]\nchannel = "${toolchain}"\n`);
+  fs.symlinkSync(outside, path.join(src, "contracts", "linked"));
   const g = (...a) => execFileSync("git", ["-C", src, ...a], { stdio: "pipe" }).toString().trim();
   g("init", "-q"); g("config", "user.email", "t@t"); g("config", "user.name", "t"); g("config", "core.autocrlf", "false");
   g("add", "."); g("commit", "-qm", "one");
@@ -133,7 +221,11 @@ if [ "$1" = "--version" ]; then echo "stellar ${stellarVersion} (fake)"; exit 0;
 out=""; prev=""; args=""
 for a in "$@"; do [ "$prev" = "--out-dir" ] && out="$a"; [ "$a" = "--out-dir" ] || [ "$prev" = "--out-dir" ] || args="$args $a"; prev="$a"; done
 [ -n "$FAKE_DIRTY" ] && echo x > "$PWD/dirty.txt"
+# FAKE_NOWRITE: like cargo with a fresh fingerprint, reuse whatever the target dir already holds.
+if [ -n "$FAKE_NOWRITE" ]; then f="$CARGO_TARGET_DIR/wasm32v1-none/release/$(basename "$PWD").wasm"; [ -f "$f" ] && cp "$f" "$out/"; exit 0; fi
 printf '%s' "$args" > "$out/$(basename "$PWD").wasm"
+[ -n "$FAKE_OLD" ] && touch -d 2000-01-01 "$out/$(basename "$PWD").wasm"
+exit 0
 `);
   fs.writeFileSync(path.join(bin, "rustc"), `#!/bin/sh\necho "rustc ${rustcVersion} (fake)"\n`);
   fs.chmodSync(path.join(bin, "stellar"), 0o755);
@@ -241,4 +333,37 @@ test("--rebuild applies the static rules first (testing never builds)", () => {
   const r = run(f.lock, ["--rebuild"], f.env);
   assert.equal(r.code, 1);
   assert.ok(!fs.existsSync(f.cache), "no checkout or build for a refused lock");
+});
+
+test("--rebuild refuses a crate path that resolves outside the checkout (symlink)", () => {
+  const f = fixture();
+  f.lock.contracts.custody_registry.path = "contracts/linked";
+  f.lock.contracts.custody_registry.wasm_sha256 = f.expected;
+  const r = run(f.lock, ["--rebuild"], f.env);
+  assert.equal(r.code, 1, r.out);
+  assert.match(r.out, /outside the checkout/);
+});
+
+test("--rebuild never measures a wasm left by an earlier build (poisoned target/out)", () => {
+  const f = fixture();
+  f.lock.contracts.custody_registry.wasm_sha256 = f.expected;
+  assert.equal(run(f.lock, ["--rebuild"], f.env).code, 0);
+  // Plant the expected wasm wherever an earlier run could have left it, then build nothing.
+  const cacheRoot = f.env.RAIL_CONTRACTS_CACHE;
+  for (const d of [path.join(cacheRoot, "out", f.commit, "custody_registry-nodefault"), path.join(cacheRoot, "target", f.commit, "custody_registry-nodefault", "wasm32v1-none", "release"), path.join(cacheRoot, "runs")]) {
+    fs.mkdirSync(d, { recursive: true });
+    fs.writeFileSync(path.join(d, "custody_registry.wasm"), " contract build --locked --no-default-features");
+  }
+  const r = run(f.lock, ["--rebuild"], { ...f.env, FAKE_NOWRITE: "1" });
+  assert.equal(r.code, 1, r.out);
+  assert.match(r.out, /build produced no/);
+  assert.deepEqual(fs.readdirSync(path.join(cacheRoot, "runs")).filter((x) => x.endsWith(".wasm")), ["custody_registry.wasm"]);
+});
+
+test("--rebuild refuses a wasm older than the build", () => {
+  const f = fixture();
+  f.lock.contracts.custody_registry.wasm_sha256 = f.expected;
+  const r = run(f.lock, ["--rebuild"], { ...f.env, FAKE_OLD: "1" });
+  assert.equal(r.code, 1, r.out);
+  assert.match(r.out, /older than this build/);
 });

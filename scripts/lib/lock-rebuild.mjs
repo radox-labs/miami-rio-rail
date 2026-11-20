@@ -106,6 +106,12 @@ export function rebuild(lock, { env = process.env, builder = stellarBuild, versi
     }
     try {
       const crateDir = path.join(dir, c.path);
+      // The crate must resolve inside the pinned checkout (no `..`, absolute path or symlink out).
+      const real = fs.realpathSync(crateDir);
+      const realRoot = fs.realpathSync(dir);
+      if (path.relative(realRoot, real).startsWith("..") || path.isAbsolute(path.relative(realRoot, real))) {
+        throw new Error(`${c.path} resolves to ${real}, outside the checkout ${realRoot}`);
+      }
       const cargoToml = fs.readFileSync(path.join(crateDir, "Cargo.toml"), "utf8");
       const tc = path.join(crateDir, "rust-toolchain.toml");
       const toolchainToml = fs.existsSync(tc) ? fs.readFileSync(tc, "utf8") : null;
@@ -116,15 +122,23 @@ export function rebuild(lock, { env = process.env, builder = stellarBuild, versi
       if (v.stellar_cli !== c.stellar_cli) throw new Error(`stellar-cli ${v.stellar_cli} != lock ${c.stellar_cli}`);
       const args = buildArgs(c);
       const variant = c.features.length ? c.features.join("+") : "nodefault";
-      const outDir = path.join(root, "out", lock.commit, `${name}-${variant}`);
-      fs.rmSync(outDir, { recursive: true, force: true });
-      fs.mkdirSync(outDir, { recursive: true });
-      builder({ crateDir, args, rustc: c.rustc, targetDir: path.join(root, "target", lock.commit, `${name}-${variant}`), outDir, env });
-      verifyCheckout(dir, lock.commit); // the build must not touch the pinned tree
+      // Fresh target and out dirs per run: no artifact from an earlier build can be measured.
+      fs.mkdirSync(path.join(root, "runs"), { recursive: true });
+      const run = fs.mkdtempSync(path.join(root, "runs", `${lock.commit.slice(0, 12)}-${name}-${variant}-`));
+      const outDir = path.join(run, "out");
+      fs.mkdirSync(outDir);
+      const started = Date.now();
+      try {
+        builder({ crateDir, args, rustc: c.rustc, targetDir: path.join(run, "target"), outDir, env });
+      } finally {
+        verifyCheckout(dir, lock.commit); // the build must not touch the pinned tree
+      }
       const wasm = path.join(outDir, `${path.basename(c.path)}.wasm`);
       if (!fs.existsSync(wasm)) throw new Error(`build produced no ${wasm}`);
+      if (fs.statSync(wasm).mtimeMs + 1000 < started) throw new Error(`${wasm} is older than this build`);
       const got = sha256(fs.readFileSync(wasm));
       results.push({ name, status: got === want ? "ok" : "mismatch", want, got, args: ["stellar", ...args].join(" ") });
+      fs.rmSync(run, { recursive: true, force: true });
     } catch (e) {
       results.push({ name, status: "error", want, error: e.message });
     }

@@ -5,6 +5,11 @@
 // pinned crate (Cargo.toml features, rust-toolchain.toml). Used by verify-contracts-lock.mjs.
 
 export const NETWORKS = ["testnet", "mainnet"];
+// Only these entries may be kept as legacy (decision G, 16/11); custody_registry cannot be demoted.
+export const LEGACY_ALLOWED = ["transfer_agent"];
+// Test-only switches, matched on every feature name in the closure (case-insensitive).
+const TEST_FEATURE = /(^|[/:])(testing|testutils)$/i;
+const CRATE_PATH = /^contracts\/[A-Za-z0-9_-]+$/;
 const HEX64 = /^[0-9a-f]{64}$/;
 const HEX40 = /^[0-9a-f]{40}$/;
 
@@ -23,6 +28,7 @@ export function lintLock(lock) {
     if (typeof c.reproducible !== "boolean") e("reproducible must be true or false");
     if (!HEX64.test(c.wasm_sha256 ?? "")) e("bad wasm_sha256");
     for (const k of ["path", "rustc", "stellar_cli"]) if (typeof c[k] !== "string" || !c[k]) e(`${k} missing`);
+    if (typeof c.path === "string" && !CRATE_PATH.test(c.path)) e(`path ${c.path} must match contracts/<crate>`);
 
     if (!Array.isArray(c.network) || !c.network.length) e("network must be a non-empty list");
     else for (const n of c.network) if (!NETWORKS.includes(n)) e(`unknown network ${n}`);
@@ -30,9 +36,16 @@ export function lintLock(lock) {
       if (!Array.isArray(c.network) || !c.network.includes(n)) e(`deployment on ${n} but network is ${JSON.stringify(c.network)}`);
     }
 
-    if (Array.isArray(c.features) && c.features.includes("testing")) e("features include `testing` (test-only build, e.g. token_sale skips USDC SAC validation)");
+    if (Array.isArray(c.features)) {
+      for (const f of c.features) {
+        if (typeof f !== "string") continue;
+        if (TEST_FEATURE.test(f)) e(`features include test-only \`${f}\` (e.g. token_sale skips USDC SAC validation)`);
+        else if (f === "default") e("features include `default`, which turns the crate defaults (`testing`) back on");
+      }
+    }
 
     if (c.legacy === true) {
+      if (!LEGACY_ALLOWED.includes(name)) e(`only ${LEGACY_ALLOWED.join(", ")} may be legacy`);
       // Legacy = an installed wasm kept as-is (decision G, 16/11); never a way around the rules.
       if (c.reproducible !== false) e("a legacy entry must have reproducible: false");
       if (c.features !== null) e("a legacy entry must have features: null (its build flags are not known)");
@@ -43,6 +56,13 @@ export function lintLock(lock) {
     } else if (c.legacy === false) {
       if (c.reproducible !== true) e("a non-legacy entry must be reproducible: true");
       if (!Array.isArray(c.features) || !c.features.every((f) => typeof f === "string" && /^[\w-]+$/.test(f))) e("features must be an exact list of feature names");
+      // Allowlist, decidable without the source: the only build switch these crates need is the
+      // network feature (token_sale: testnet/mainnet), matching the entry's single network.
+      // --rebuild also checks the transitive closure in the crate's Cargo.toml.
+      else for (const f of c.features) {
+        if (!NETWORKS.includes(f)) e(`feature ${f} is not allowed (only the network feature: ${NETWORKS.join(", ")})`);
+        else if (!(Array.isArray(c.network) && c.network.length === 1 && c.network[0] === f)) e(`feature ${f} needs network ["${f}"] (one entry per network)`);
+      }
       // Always explicit: the crate defaults (token_sale, transfer_agent: default = ["testing"]) never apply.
       if (c.no_default_features !== true) e("no_default_features must be true (crate defaults may include `testing`)");
     }
@@ -79,6 +99,31 @@ export function cargoFeatures(toml) {
   return out;
 }
 
+// Every feature switched on by `start`, following crate features (`a = ["b"]`), `dep:x` and `x/feat`.
+export function featureClosure(feats, start) {
+  const seen = new Set();
+  const todo = [...start];
+  while (todo.length) {
+    const f = todo.pop();
+    if (seen.has(f)) continue;
+    seen.add(f);
+    if (f in feats) todo.push(...feats[f]);
+  }
+  return [...seen].sort();
+}
+
+// Hash a script may use on `network`. Mainnet only from a reproducible, non-legacy entry.
+export function hashFor(lock, name, { network } = {}) {
+  const { errors } = lintLock(lock);
+  if (errors.length) throw new Error(`contracts.lock.json refused: ${errors.join("; ")}`);
+  const c = lock.contracts?.[name];
+  if (!c) throw new Error(`contracts.lock.json: no entry for ${name}`);
+  if (!NETWORKS.includes(network)) throw new Error(`wasmHash(${name}): pass { network: "testnet" | "mainnet" }`);
+  if (!c.network.includes(network)) throw new Error(`contracts.lock.json: ${name} is not built for ${network} (network ${JSON.stringify(c.network)})`);
+  if (network === "mainnet" && (c.legacy || !c.reproducible)) throw new Error(`contracts.lock.json: ${name} is legacy or not reproducible; never on mainnet`);
+  return c.wasm_sha256;
+}
+
 export function toolchainChannel(toml) {
   return toml.match(/^\s*channel\s*=\s*"([^"]+)"/m)?.[1] ?? null;
 }
@@ -89,6 +134,9 @@ export function checkAgainstCrate(name, c, { cargoToml, toolchainToml }) {
   let feats;
   try { feats = cargoFeatures(cargoToml); } catch (err) { return [`${name}: Cargo.toml: ${err.message}`]; }
   for (const f of c.features) if (!(f in feats)) errs.push(`${name}: feature ${f} is not declared in Cargo.toml`);
+  const closure = featureClosure(feats, c.no_default_features === true ? c.features : ["default", ...c.features]);
+  const bad = closure.filter((f) => TEST_FEATURE.test(f) || f === "default");
+  if (bad.length) errs.push(`${name}: features ${JSON.stringify(c.features)} turn on ${bad.join(", ")} (closure: ${closure.join(", ")})`);
   if ((feats.default ?? []).includes("testing") && c.no_default_features !== true) {
     errs.push(`${name}: crate default includes \`testing\` and the entry does not pass --no-default-features`);
   }

@@ -28,7 +28,7 @@ import {
 import { NET, HORIZON, server, addr, sleep, call, read, invokeOp, waitFor } from "./lib/stellar.mjs";
 import { wasmHash } from "./lib/contracts-lock.mjs";
 
-const REGISTRY_WASM = process.env.REGISTRY_WASM_HASH ?? wasmHash("custody_registry");
+const REGISTRY_WASM = process.env.REGISTRY_WASM_HASH ?? wasmHash("custody_registry", { network: "testnet" });
 const TOKEN = "CBCWTIT5YNPNSA4ZSJJXUFZKGQROZPWNWYNZ4CSO7HLWJXU7Z6N5Q22Z"; // the asset contract of proofs/lifecycle.json
 const MAX_DAYS = 7;          // sign refuses a request valid for longer
 const LEDGER_S = 5;          // testnet closes a ledger about every 5 s

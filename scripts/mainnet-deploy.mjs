@@ -29,7 +29,7 @@ const net = await new rpc.Server(RPC_URL, { allowHttp: fork }).getNetwork();
 if (net.passphrase !== Networks.PUBLIC) throw new Error(`RPC is on "${net.passphrase}", not mainnet`);
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
-const WASM_HASH = wasmHash("custody_registry");
+const WASM_HASH = wasmHash("custody_registry", { network: "mainnet" });
 const sha = (s) => createHash("sha256").update(s).digest();
 const b32 = (b) => nativeToScVal(b, { type: "bytes" });
 const u32 = (n) => nativeToScVal(n, { type: "u32" });
