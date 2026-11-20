@@ -138,8 +138,24 @@ printf '%s' "$args" > "$out/$(basename "$PWD").wasm"
   fs.writeFileSync(path.join(bin, "rustc"), `#!/bin/sh\necho "rustc ${rustcVersion} (fake)"\n`);
   fs.chmodSync(path.join(bin, "stellar"), 0o755);
   fs.chmodSync(path.join(bin, "rustc"), 0o755);
-  const lock = clone(REAL);
-  lock.commit = commit;
+  // Own lock: a future bump or the legacy swap (decision G) must not change these tests.
+  const lock = {
+    repo: "test/radox-contracts", commit,
+    contracts: {
+      custody_registry: {
+        path: "contracts/custody_registry", rustc: "1.99.1", stellar_cli: "28.1.0",
+        network: ["testnet", "mainnet"], features: [], no_default_features: true,
+        wasm_sha256: "a".repeat(64), legacy: false, reproducible: true,
+        deployments: { testnet: { demo: "C1" }, mainnet: { proof: "C2" } },
+      },
+      transfer_agent: {
+        path: "contracts/transfer_agent", rustc: "1.86.0", stellar_cli: "28.1.0",
+        network: ["testnet"], features: null, no_default_features: null,
+        wasm_sha256: "b".repeat(64), legacy: true, reproducible: false,
+        deployments: { testnet: { lifecycle_instance: "C3" } },
+      },
+    },
+  };
   const env = { PATH: `${bin}:${process.env.PATH}`, RADOX_CONTRACTS_REPO: src, RAIL_CONTRACTS_CACHE: path.join(root, "cache"), GIT_CONFIG_GLOBAL: "/dev/null" };
   const expected = sha(" contract build --locked --no-default-features");
   return { root, src, commit, first, lock, env, expected, cache: path.join(root, "cache", commit) };
@@ -159,9 +175,9 @@ test("--rebuild ok: same sha256, legacy warns, exit 0", () => {
 
 test("--rebuild refuses a different sha256", () => {
   const f = fixture();
-  const r = run(f.lock, ["--rebuild"], f.env); // real hash 8230ed93… never matches the fake wasm
+  const r = run(f.lock, ["--rebuild"], f.env); // "aaaa…" never matches the fake wasm
   assert.equal(r.code, 1, r.out);
-  assert.match(r.out, /XX custody_registry [0-9a-f]{64} != lock 8230ed93/);
+  assert.match(r.out, new RegExp(`XX custody_registry ${f.expected} != lock a{64}`));
 });
 
 test("--rebuild refuses a cached checkout at the wrong HEAD", () => {
