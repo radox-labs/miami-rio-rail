@@ -145,3 +145,18 @@ export function rebuild(lock, { env = process.env, builder = stellarBuild, versi
   }
   return { dir, results };
 }
+
+// Mainnet gate: rebuild the whole lock from a clean checkout and require every non-legacy entry,
+// and `name` itself, to match. Throws otherwise. A static edit of the lock (a hash swapped in,
+// an entry flipped to non-legacy) passes lintLock but never passes this.
+export function requireRebuilt(lock, name, opts = {}) {
+  const { results } = rebuild(lock, opts);
+  const bad = results.filter((r) => r.status !== "ok" && r.status !== "legacy");
+  const mine = results.find((r) => r.name === name);
+  if (bad.length || mine?.status !== "ok") {
+    const why = [...bad, ...(mine && mine.status !== "ok" && !bad.includes(mine) ? [mine] : [])]
+      .map((r) => `${r.name} ${r.status}${r.got ? ` ${r.got} != lock ${r.want}` : ""}${r.error ? ` ${r.error}` : ""}`);
+    throw new Error(`contracts.lock.json: rebuild from ${lock.commit} does not match the lock (${why.join("; ") || `${name} missing`}); nothing sent`);
+  }
+  return mine.got;
+}

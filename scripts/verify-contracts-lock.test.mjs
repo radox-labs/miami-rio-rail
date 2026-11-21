@@ -8,7 +8,7 @@ import os from "node:os";
 import path from "node:path";
 import { test } from "node:test";
 import { fileURLToPath } from "node:url";
-import { cargoFeatures, checkAgainstCrate, featureClosure, lintLock } from "./lib/lock-rules.mjs";
+import { cargoFeatures, checkAgainstCrate, featureClosure, hashFor, lintLock } from "./lib/lock-rules.mjs";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const CLI = path.join(HERE, "verify-contracts-lock.mjs");
@@ -122,7 +122,8 @@ test("the lock reader refuses every mutated lock (same rules as the CLI)", () =>
 
 test("wasmHash needs a network; mainnet only from a reproducible non-legacy entry", () => {
   assert.equal(reader(REAL, `wasmHash("custody_registry", ${TESTNET})`).out, REAL.contracts.custody_registry.wasm_sha256);
-  assert.equal(reader(REAL, `wasmHash("custody_registry", ${MAINNET})`).out, REAL.contracts.custody_registry.wasm_sha256);
+  // Static part only; the mainnet rebuild gate of wasmHash is covered in mainnet-gate.test.mjs.
+  assert.equal(hashFor(REAL, "custody_registry", { network: "mainnet" }), REAL.contracts.custody_registry.wasm_sha256);
   assert.equal(reader(REAL, `wasmHash("transfer_agent", ${TESTNET})`).out, REAL.contracts.transfer_agent.wasm_sha256);
   for (const call of [`wasmHash("custody_registry")`, `wasmHash("custody_registry", {})`, `wasmHash("custody_registry", { network: "futurenet" })`]) {
     const r = reader(REAL, call);

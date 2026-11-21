@@ -17,6 +17,8 @@ import { wasmHash } from "./lib/contracts-lock.mjs";
 
 if (!/^http:\/\/(127\.0\.0\.1|localhost)[:/]/.test(RPC_URL) || NET !== Networks.PUBLIC)
   throw new Error("rehearsal runs only against a local mainnet fork (RPC_URL on localhost, PUBLIC passphrase)");
+// Rebuilds the whole lock from a clean checkout and aborts unless it matches (contracts.lock.json).
+const WASM_HASH = wasmHash("custody_registry", { network: "mainnet" });
 const fork = async (method, params = {}) => {
   const r = await (await fetch(RPC_URL, { method: "POST", headers: { "content-type": "application/json" },
     body: JSON.stringify({ jsonrpc: "2.0", id: 1, method, params }) })).json();
@@ -26,7 +28,6 @@ const fork = async (method, params = {}) => {
 await fork("fork_info"); // a real RPC has no fork_* methods: stop here if this is not the fork
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
-const WASM_HASH = wasmHash("custody_registry", { network: "mainnet" }); // the testnet-proven build (contracts.lock.json)
 const sha = (s) => createHash("sha256").update(s).digest();
 const b32 = (b) => nativeToScVal(b, { type: "bytes" });
 const u32 = (n) => nativeToScVal(n, { type: "u32" });
