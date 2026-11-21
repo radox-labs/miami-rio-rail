@@ -1,5 +1,5 @@
 {
-  "$comment": "Soroban contracts this repo consumes. Source of truth: radox-labs/radox-contracts at `commit`. Scripts read wasm hashes from here through scripts/lib/contracts-lock.mjs; check the chain against it with `node scripts/verify-contracts-lock.mjs`.",
+  "$comment": "Soroban contracts this repo consumes. Source of truth: radox-labs/radox-contracts at `commit`. Each entry is one build variant: `features` (exact list, built with `stellar contract build --locked --no-default-features --features ...`; crate defaults never apply because token_sale and transfer_agent default to `testing`), `network` (where that wasm may run) and its `wasm_sha256`. `legacy: true` = installed wasm kept as-is, not reproducible from `commit`. Scripts read hashes through scripts/lib/contracts-lock.mjs. Check with `npm run verify-contracts-lock` (chain), `-- --rebuild` (checkout + rebuild + sha256) or `-- --static` (rules only).",
   "repo": "radox-labs/radox-contracts",
   "commit": "913798376f6fb658cff25117793f3c2007dbd390",
   "contracts": {
@@ -8,8 +8,15 @@
       "rustc": "1.99.1",
       "stellar_cli": "28.1.0",
       "soroban_sdk": "29.0.1",
+      "network": [
+        "testnet",
+        "mainnet"
+      ],
+      "features": [],
+      "no_default_features": true,
       "wasm_sha256": "8230ed937f443e40054d0806c9cdd044ef341db19f0c1b3123c573adb7a41342",
-      "reproducible_from_commit": true,
+      "legacy": false,
+      "reproducible": true,
       "deployments": {
         "testnet": {
           "demo": "CCBJVXMJYWPHTDJHDFPRGKPGXGEP24JOPJAMUS5C3BMZJTRTWR2H4LII",
@@ -27,9 +34,15 @@
       "rustc": "1.86.0",
       "stellar_cli": "28.1.0",
       "soroban_sdk": "25.3.0",
+      "network": [
+        "testnet"
+      ],
+      "features": null,
+      "no_default_features": null,
       "wasm_sha256": "3870748b709f7b8531c7ebbbc975712333f61949831350ff7192f7076fc6bff1",
-      "reproducible_from_commit": false,
-      "$note": "v5 (version() = 5), built 2026-10-06 before the source moved to radox-contracts (radox-core docs/Operations/PROVA_TRANSFER_AGENT_PAUSER_2026-10-06.md). Same interface and toolchain as `commit`, but `stellar contract build` there gives 5915649c2fd4ab6aaa93fe90ae718fb8d26826ea39190257f584577cee8e3576, 2 bytes apart. The Rail keeps using the installed testnet wasm as-is.",
+      "legacy": true,
+      "reproducible": false,
+      "$note": "Legacy (decision G, 16/11): v5 (version() = 5), built 2026-10-06 before the source moved to radox-contracts (radox-core docs/Operations/PROVA_TRANSFER_AGENT_PAUSER_2026-10-06.md); its build flags are not recorded, so `features` is null. Rebuilt at `commit` with rustc 1.86.0 and stellar-cli 28.1.0: crate defaults (`testing`) give 5915649c2fd4ab6aaa93fe90ae718fb8d26826ea39190257f584577cee8e3576, --no-default-features gives 482cba8f5a77f0cf378cf6b359e02c61d5cb044d24b102713b46ad0e34eded4c; neither is the installed wasm. Testnet only; the Rail keeps the installed wasm until the first verified build of a merged commit replaces it.",
       "deployments": {
         "testnet": {
           "lifecycle_instance": "CAYD3EFTN6YOHMHJ5C62WYGABBIN2G6MV5MLHUKWV2EVJP5FFTKXSJWH"

@@ -22,7 +22,7 @@ import { HORIZON, addr, sleep, fund, invokeOp, call, read, random } from "./lib/
 import { wasmHash } from "./lib/contracts-lock.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
-const REGISTRY_WASM = process.env.REGISTRY_WASM_HASH ?? wasmHash("custody_registry");
+const REGISTRY_WASM = process.env.REGISTRY_WASM_HASH ?? wasmHash("custody_registry", { network: "testnet" });
 const TOKEN = "CBCWTIT5YNPNSA4ZSJJXUFZKGQROZPWNWYNZ4CSO7HLWJXU7Z6N5Q22Z"; // the demo's cargo token, recorded only
 
 const sha = (s) => createHash("sha256").update(s).digest();

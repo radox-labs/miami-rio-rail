@@ -26,7 +26,7 @@ const fork = async (method, params = {}) => {
 await fork("fork_info"); // a real RPC has no fork_* methods: stop here if this is not the fork
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
-const WASM_HASH = wasmHash("custody_registry"); // the testnet-proven build (contracts.lock.json)
+const WASM_HASH = wasmHash("custody_registry", { network: "mainnet" }); // the testnet-proven build (contracts.lock.json)
 const sha = (s) => createHash("sha256").update(s).digest();
 const b32 = (b) => nativeToScVal(b, { type: "bytes" });
 const u32 = (n) => nativeToScVal(n, { type: "u32" });
