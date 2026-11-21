@@ -70,7 +70,7 @@ globalThis.fetch = async (u) => { fs.appendFileSync(${JSON.stringify(marker)}, S
 }
 
 // Temp copy of the repo with `lock` (real hashes mapped to the fake builder's output).
-function runScript(f, script, lock, env) {
+function runScript(f, script, lock, env, args = []) {
   const dir = fs.mkdtempSync(path.join(f.root, "repo-"));
   fs.cpSync(path.join(REPO, "scripts"), path.join(dir, "scripts"), { recursive: true });
   fs.copyFileSync(path.join(REPO, "package.json"), path.join(dir, "package.json"));
@@ -80,7 +80,7 @@ function runScript(f, script, lock, env) {
   if (l.contracts.custody_registry.wasm_sha256 === REAL_CR) l.contracts.custody_registry.wasm_sha256 = sha(fakeWasm("custody_registry"));
   fs.writeFileSync(path.join(dir, "contracts.lock.json"), JSON.stringify(l, null, 2));
   fs.rmSync(f.marker, { force: true });
-  const r = spawnSync(process.execPath, ["--import", f.preload, path.join(dir, "scripts", script)], {
+  const r = spawnSync(process.execPath, ["--import", f.preload, path.join(dir, "scripts", script), ...args], {
     encoding: "utf8", cwd: dir, timeout: 60_000,
     env: {
       PATH: `${f.bin}:${process.env.PATH}`, HOME: f.root, GIT_CONFIG_GLOBAL: "/dev/null",
@@ -138,6 +138,59 @@ for (const [script, env] of [["mainnet-deploy.mjs", DEPLOY_ENV], ["mainnet-rehea
       assert.notEqual(r.code, 0);
       assert.match(r.out, /rebuilding .* before using custody_registry/);
       assert.deepEqual(r.connects, ["http://127.0.0.1:9"], r.out); // fork_info, the step after the gate
+    }
+  });
+}
+
+// qa r3 #1: the gate never builds from the cache, so a replace-tampered cache cannot reach mainnet.
+test("mainnet gate ignores a replace-tampered RAIL_CONTRACTS_CACHE (fresh fetch every time)", () => {
+  const f = fixture();
+  const c = path.join(f.cache, f.commit);
+  const g = (...a) => execFileSync("git", ["-C", c, ...a], { stdio: "pipe", env: { ...process.env, GIT_CONFIG_GLOBAL: "/dev/null" } }).toString().trim();
+  execFileSync("git", ["clone", "-q", f.src, c], { env: { ...process.env, GIT_CONFIG_GLOBAL: "/dev/null" } });
+  // Tamper like the qa: replace the custody crate's Cargo.toml blob (HEAD stays at the commit).
+  const blob = g("rev-parse", "HEAD:contracts/custody_registry/Cargo.toml");
+  fs.writeFileSync(path.join(f.root, "evil.toml"), `[package]\nname = "evil"\n`);
+  g("replace", blob, g("hash-object", "-w", path.join(f.root, "evil.toml")));
+  g("read-tree", "HEAD"); g("checkout", "-f", "HEAD", "--", ".");
+  assert.match(fs.readFileSync(path.join(c, "contracts", "custody_registry", "Cargo.toml"), "utf8"), /evil/);
+  const before = fs.readdirSync(f.cache).sort();
+  const r = runScript(f, "mainnet-deploy.mjs", REAL, DEPLOY_ENV);
+  assert.match(r.out, /custody_registry rebuilt from [0-9a-f]{40} = /, r.out);
+  assert.match(r.out, /real mainnet: set CONFIRM_MAINNET=send/);
+  assert.deepEqual(r.connects, []);
+  assert.deepEqual(fs.readdirSync(f.cache).sort(), before, "the gate wrote into the cache");
+  // The same replace in the source repo is not followed either (GIT_NO_REPLACE_OBJECTS, fresh fetch by sha).
+  const s = (...a) => execFileSync("git", ["-C", f.src, ...a], { stdio: "pipe", env: { ...process.env, GIT_CONFIG_GLOBAL: "/dev/null" } }).toString().trim();
+  s("replace", blob, s("hash-object", "-w", path.join(f.root, "evil.toml")));
+  const r2 = runScript(f, "mainnet-deploy.mjs", REAL, DEPLOY_ENV);
+  assert.match(r2.out, /real mainnet: set CONFIRM_MAINNET=send/, r2.out);
+});
+
+// qa r3 #2: every script that imports lib/stellar.mjs, except the two gated mainnet scripts,
+// refuses a mainnet environment before any connection (REGISTRY_WASM_HASH included).
+const MAINNET_SCRIPTS = ["mainnet-deploy.mjs", "mainnet-rehearsal.mjs"];
+const STELLAR_USERS = fs.readdirSync(HERE).filter((n) => n.endsWith(".mjs") && !n.endsWith(".test.mjs"))
+  .filter((n) => /from "\.\/lib\/stellar\.mjs"/.test(fs.readFileSync(path.join(HERE, n), "utf8")));
+
+test("the stellar.mjs importers are the known five", () => {
+  assert.deepEqual(STELLAR_USERS.sort(), ["lifecycle.mjs", "mainnet-deploy.mjs", "mainnet-rehearsal.mjs", "multi-chain.mjs", "remote-auth.mjs"]);
+});
+
+for (const script of STELLAR_USERS.filter((n) => !MAINNET_SCRIPTS.includes(n))) {
+  test(`${script} refuses a mainnet environment before any connection`, () => {
+    const f = fixture();
+    const argsets = script === "remote-auth.mjs" ? [[], ["prepare"], ["sign"], ["submit"]] : [[]];
+    for (const rpcUrl of ["https://mainnet.sorobanrpc.com", "https://soroban-testnet.stellar.org"]) {
+      for (const args of argsets) {
+        const r = runScript(f, script, REAL, {
+          RPC_URL: rpcUrl, HORIZON_URL: "https://horizon.stellar.org",
+          REGISTRY_WASM_HASH: "ab".repeat(32), CONFIRM_MAINNET: "send", SIGNER_SECRET: "SXXX",
+        }, args);
+        assert.equal(r.code, 1, `${script} ${args}: ${r.out}`);
+        assert.match(r.out, /testnet only: NETWORK_PASSPHRASE must be the testnet passphrase/);
+        assert.deepEqual(r.connects, [], `${script} ${args} connected: ${r.connects}`);
+      }
     }
   });
 }

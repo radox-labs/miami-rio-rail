@@ -297,6 +297,88 @@ test("--rebuild refuses a dirty cached checkout (modified or untracked)", () => 
   }
 });
 
+// qa r3: a cache that shows HEAD == commit and a clean `git status` but builds other source.
+const g = (dir, ...a) => execFileSync("git", ["-C", dir, ...a], { stdio: "pipe", env: { ...process.env, GIT_CONFIG_GLOBAL: "/dev/null" } }).toString().trim();
+const TAMPER = {
+  // qa scenario: git replace of the crate tree, files re-checked out through the replacement.
+  "replace (tree)": (c) => {
+    const tree = g(c, "rev-parse", "HEAD:contracts/custody_registry");
+    const evil = path.join(c, "..", "evil-src");
+    fs.cpSync(path.join(c, "contracts", "custody_registry"), evil, { recursive: true });
+    fs.appendFileSync(path.join(evil, "README"), "evil\n");
+    const blob = g(c, "hash-object", "-w", path.join(evil, "README"));
+    const listing = g(c, "ls-tree", tree).split("\n").map((l) => (l.endsWith("\tREADME") ? l.replace(/[0-9a-f]{40}/, blob) : l)).join("\n") + "\n";
+    const evilTree = execFileSync("git", ["-C", c, "mktree"], { input: listing }).toString().trim();
+    g(c, "replace", tree, evilTree);
+    g(c, "read-tree", "HEAD"); g(c, "checkout", "-f", "HEAD", "--", ".");
+  },
+  "replace (blob)": (c) => {
+    const blob = g(c, "rev-parse", "HEAD:contracts/custody_registry/README");
+    const evil = path.join(c, "..", "evil.txt");
+    fs.writeFileSync(evil, "evil\n");
+    g(c, "replace", blob, g(c, "hash-object", "-w", evil));
+    g(c, "read-tree", "HEAD"); g(c, "checkout", "-f", "HEAD", "--", ".");
+  },
+  "replace ref removed after checkout": (c) => { TAMPER["replace (blob)"](c); for (const r of g(c, "replace", "-l").split("\n")) g(c, "replace", "-d", r); },
+  "same size and mtime edit (stat cache)": (c) => {
+    const f = path.join(c, "contracts", "custody_registry", "README");
+    const { atime, mtime, size } = fs.statSync(f);
+    fs.writeFileSync(f, "x".repeat(size));
+    fs.utimesSync(f, atime, mtime);
+  },
+  grafts: (c) => fs.writeFileSync(path.join(c, ".git", "info", "grafts"), `${g(c, "rev-parse", "HEAD")}\n`),
+  alternates: (c) => fs.writeFileSync(path.join(c, ".git", "objects", "info", "alternates"), "/tmp/elsewhere/objects\n"),
+  "unexpected shallow": (c) => fs.appendFileSync(path.join(c, ".git", "shallow"), `${"1".repeat(40)}\n`),
+  "ignored file (.cargo/config.toml)": (c) => {
+    fs.appendFileSync(path.join(c, ".git", "info", "exclude"), ".cargo/\n");
+    fs.mkdirSync(path.join(c, "contracts", "custody_registry", ".cargo"));
+    fs.writeFileSync(path.join(c, "contracts", "custody_registry", ".cargo", "config.toml"), "[build]\n");
+  },
+  ".git is a gitfile": (c) => {
+    const real = path.join(c, "..", "moved.git");
+    fs.renameSync(path.join(c, ".git"), real);
+    fs.writeFileSync(path.join(c, ".git"), `gitdir: ${real}\n`);
+  },
+  "swapped loose object": (c) => {
+    // Unpack, then overwrite the README blob file with another object's bytes.
+    const blob = g(c, "rev-parse", "HEAD:contracts/custody_registry/README");
+    const other = g(c, "hash-object", "-w", "--stdin");
+    const obj = (o) => path.join(c, ".git", "objects", o.slice(0, 2), o.slice(2));
+    if (!fs.existsSync(obj(blob))) {
+      for (const pack of fs.readdirSync(path.join(c, ".git", "objects", "pack")).filter((x) => x.endsWith(".pack"))) {
+        const pk = path.join(c, ".git", "objects", "pack", pack);
+        const tmpPack = path.join(c, "..", pack);
+        fs.renameSync(pk, tmpPack);
+        fs.rmSync(pk.replace(/\.pack$/, ".idx"), { force: true });
+        execFileSync("git", ["-C", c, "unpack-objects", "-q"], { input: fs.readFileSync(tmpPack) });
+      }
+    }
+    fs.chmodSync(obj(blob), 0o644);
+    fs.copyFileSync(obj(other), obj(blob));
+  },
+};
+
+for (const [label, tamper] of Object.entries(TAMPER)) {
+  test(`--rebuild refuses a tampered cache: ${label}`, () => {
+    const f = fixture();
+    f.lock.contracts.custody_registry.wasm_sha256 = f.expected;
+    assert.equal(run(f.lock, ["--rebuild"], f.env).code, 0, label);
+    tamper(f.cache);
+    const r = run(f.lock, ["--rebuild"], f.env);
+    assert.equal(r.code, 1, `${label} accepted:\n${r.out}`);
+    assert.match(r.out, /XX checkout:/, label);
+  });
+}
+
+test("--rebuild ignores GIT_* from the caller (GIT_DIR pointing at another repo)", () => {
+  const f = fixture();
+  f.lock.contracts.custody_registry.wasm_sha256 = f.expected;
+  const other = fixture();
+  const r = run(f.lock, ["--rebuild"], { ...f.env, GIT_DIR: path.join(other.src, ".git"), GIT_WORK_TREE: other.src });
+  assert.equal(r.code, 0, r.out);
+  assert.equal(g(f.cache, "rev-parse", "HEAD"), f.commit);
+});
+
 test("--rebuild refuses a build that writes into the checkout", () => {
   const f = fixture();
   f.lock.contracts.custody_registry.wasm_sha256 = f.expected;
