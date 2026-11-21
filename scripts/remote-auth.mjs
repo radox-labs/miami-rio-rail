@@ -25,8 +25,10 @@ import { dirname, join, resolve } from "node:path";
 import {
   Keypair, Operation, Address, TransactionBuilder, rpc, xdr, nativeToScVal, scValToNative, authorizeEntry,
 } from "@stellar/stellar-sdk";
-import { NET, HORIZON, server, addr, sleep, call, read, invokeOp, waitFor } from "./lib/stellar.mjs";
+import { NET, HORIZON, server, addr, sleep, call, read, invokeOp, waitFor, testnetOnly } from "./lib/stellar.mjs";
 import { wasmHash } from "./lib/contracts-lock.mjs";
+
+testnetOnly("remote-auth.mjs"); // before any key, hash or RPC use
 
 const REGISTRY_WASM = process.env.REGISTRY_WASM_HASH ?? wasmHash("custody_registry", { network: "testnet" });
 const TOKEN = "CBCWTIT5YNPNSA4ZSJJXUFZKGQROZPWNWYNZ4CSO7HLWJXU7Z6N5Q22Z"; // the asset contract of proofs/lifecycle.json

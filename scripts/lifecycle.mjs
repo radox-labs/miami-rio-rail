@@ -16,8 +16,10 @@ import {
   Keypair, Asset, Operation, Address, Networks, AuthRequiredFlag, AuthRevocableFlag, AuthClawbackEnabledFlag,
   nativeToScVal,
 } from "@stellar/stellar-sdk";
-import { HORIZON, server, addr, sleep, fund, sendClassic, invokeOp, call, read, random } from "./lib/stellar.mjs";
+import { HORIZON, server, addr, sleep, fund, sendClassic, invokeOp, call, read, random, testnetOnly } from "./lib/stellar.mjs";
 import { wasmHash } from "./lib/contracts-lock.mjs";
+
+testnetOnly("lifecycle.mjs"); // before any key, hash or RPC use
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const REGISTRY_WASM = process.env.REGISTRY_WASM_HASH ?? wasmHash("custody_registry", { network: "testnet" });

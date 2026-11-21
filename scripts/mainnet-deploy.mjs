@@ -24,12 +24,13 @@ import { wasmHash } from "./lib/contracts-lock.mjs";
 
 const fork = /^http:\/\/(127\.0\.0\.1|localhost)[:/]/.test(RPC_URL);
 if (NET !== Networks.PUBLIC) throw new Error("NETWORK_PASSPHRASE must be the PUBLIC (mainnet) passphrase");
+// Rebuilds the whole lock from a clean checkout and aborts unless it matches; before any RPC call or send.
+const WASM_HASH = wasmHash("custody_registry", { network: "mainnet" });
 if (!fork && process.env.CONFIRM_MAINNET !== "send") throw new Error("real mainnet: set CONFIRM_MAINNET=send");
 const net = await new rpc.Server(RPC_URL, { allowHttp: fork }).getNetwork();
 if (net.passphrase !== Networks.PUBLIC) throw new Error(`RPC is on "${net.passphrase}", not mainnet`);
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
-const WASM_HASH = wasmHash("custody_registry", { network: "mainnet" });
 const sha = (s) => createHash("sha256").update(s).digest();
 const b32 = (b) => nativeToScVal(b, { type: "bytes" });
 const u32 = (n) => nativeToScVal(n, { type: "u32" });

@@ -18,8 +18,10 @@ import { mkdirSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { Address, Operation, nativeToScVal } from "@stellar/stellar-sdk";
-import { HORIZON, addr, sleep, fund, invokeOp, call, read, random } from "./lib/stellar.mjs";
+import { HORIZON, addr, sleep, fund, invokeOp, call, read, random, testnetOnly } from "./lib/stellar.mjs";
 import { wasmHash } from "./lib/contracts-lock.mjs";
+
+testnetOnly("multi-chain.mjs"); // before any key, hash or RPC use
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const REGISTRY_WASM = process.env.REGISTRY_WASM_HASH ?? wasmHash("custody_registry", { network: "testnet" });

@@ -10,6 +10,11 @@ import {
 export const NET = process.env.NETWORK_PASSPHRASE ?? Networks.TESTNET;
 export const RPC_URL = process.env.RPC_URL ?? "https://soroban-testnet.stellar.org";
 export const HORIZON = process.env.HORIZON_URL ?? "https://horizon-testnet.stellar.org";
+// Testnet scripts call this first: a PUBLIC passphrase from the environment must never reach
+// them (mainnet goes only through mainnet-deploy / mainnet-rehearsal, after the rebuild gate).
+export function testnetOnly(script) {
+  if (NET !== Networks.TESTNET) throw new Error(`${script} is testnet only: NETWORK_PASSPHRASE must be the testnet passphrase (got "${NET}")`);
+}
 export const server = new rpc.Server(RPC_URL, { allowHttp: RPC_URL.startsWith("http://127.0.0.1") });
 
 export const addr = (g) => nativeToScVal(g, { type: "address" });
