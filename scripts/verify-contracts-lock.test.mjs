@@ -191,7 +191,12 @@ test("Cargo.toml [features] parser and crate rules", () => {
   assert.deepEqual(featureClosure({ a: ["b"], b: ["c", "a"], c: [] }, ["a"]), ["a", "b", "c"]);
 });
 
-// --rebuild against a local git repo and fake stellar/rustc on PATH.
+// --rebuild against a local git repo and fake stellar/rustc on PATH. Flags for the fake go in a
+// file next to it: the build environment is an allowlist, so env vars never reach it.
+function fakeFlags(f, ...flags) {
+  fs.writeFileSync(path.join(f.root, "bin", "fake.env"), flags.map((x) => `${x}=1`).join("\n") + "\n");
+  return f.env;
+}
 function fixture({ toolchain = "1.99.1", stellarVersion = "28.1.0", rustcVersion = "1.99.1" } = {}) {
   const root = tmp();
   const src = path.join(root, "src");
@@ -218,13 +223,19 @@ function fixture({ toolchain = "1.99.1", stellarVersion = "28.1.0", rustcVersion
   const bin = path.join(root, "bin");
   fs.mkdirSync(bin);
   fs.writeFileSync(path.join(bin, "stellar"), `#!/bin/sh
+[ -f "$(dirname "$0")/fake.env" ] && . "$(dirname "$0")/fake.env"
 if [ "$1" = "--version" ]; then echo "stellar ${stellarVersion} (fake)"; exit 0; fi
 out=""; prev=""; args=""
 for a in "$@"; do [ "$prev" = "--out-dir" ] && out="$a"; [ "$a" = "--out-dir" ] || [ "$prev" = "--out-dir" ] || args="$args $a"; prev="$a"; done
 [ -n "$FAKE_DIRTY" ] && echo x > "$PWD/dirty.txt"
 # FAKE_NOWRITE: like cargo with a fresh fingerprint, reuse whatever the target dir already holds.
 if [ -n "$FAKE_NOWRITE" ]; then f="$CARGO_TARGET_DIR/wasm32v1-none/release/$(basename "$PWD").wasm"; [ -f "$f" ] && cp "$f" "$out/"; exit 0; fi
-printf '%s' "$args" > "$out/$(basename "$PWD").wasm"
+# Like cargo: inherited flags and .cargo/config(.toml) above the crate or in CARGO_HOME change the bytes.
+pol=""
+for v in RUSTFLAGS CARGO_ENCODED_RUSTFLAGS RUSTC_WRAPPER RUSTC_WORKSPACE_WRAPPER CARGO_BUILD_RUSTFLAGS CARGO_PROFILE_RELEASE_OPT_LEVEL CARGO_TARGET_WASM32V1_NONE_RUSTFLAGS; do eval "x=\\\${$v:-}"; [ -n "$x" ] && pol="$pol|$v=$x"; done
+d="$PWD"; while :; do for c in "$d/.cargo/config" "$d/.cargo/config.toml"; do [ -f "$c" ] && pol="$pol|cfg:$(cat "$c")"; done; [ "$d" = "/" ] && break; d=$(dirname "$d"); done
+ch="\${CARGO_HOME:-$HOME/.cargo}"; for c in "$ch/config" "$ch/config.toml"; do [ -f "$c" ] && pol="$pol|home:$(cat "$c")"; done
+printf '%s%s' "$args" "$pol" > "$out/$(basename "$PWD").wasm"
 [ -n "$FAKE_OLD" ] && touch -d 2000-01-01 "$out/$(basename "$PWD").wasm"
 exit 0
 `);
@@ -382,7 +393,7 @@ test("--rebuild ignores GIT_* from the caller (GIT_DIR pointing at another repo)
 test("--rebuild refuses a build that writes into the checkout", () => {
   const f = fixture();
   f.lock.contracts.custody_registry.wasm_sha256 = f.expected;
-  const r = run(f.lock, ["--rebuild"], { ...f.env, FAKE_DIRTY: "1" });
+  const r = run(f.lock, ["--rebuild"], fakeFlags(f, "FAKE_DIRTY"));
   assert.equal(r.code, 1, r.out);
   assert.match(r.out, /!! custody_registry .*dirty tree/);
 });
@@ -437,7 +448,7 @@ test("--rebuild never measures a wasm left by an earlier build (poisoned target/
     fs.mkdirSync(d, { recursive: true });
     fs.writeFileSync(path.join(d, "custody_registry.wasm"), " contract build --locked --no-default-features");
   }
-  const r = run(f.lock, ["--rebuild"], { ...f.env, FAKE_NOWRITE: "1" });
+  const r = run(f.lock, ["--rebuild"], fakeFlags(f, "FAKE_NOWRITE"));
   assert.equal(r.code, 1, r.out);
   assert.match(r.out, /build produced no/);
   assert.deepEqual(fs.readdirSync(path.join(cacheRoot, "runs")).filter((x) => x.endsWith(".wasm")), ["custody_registry.wasm"]);
@@ -446,7 +457,32 @@ test("--rebuild never measures a wasm left by an earlier build (poisoned target/
 test("--rebuild refuses a wasm older than the build", () => {
   const f = fixture();
   f.lock.contracts.custody_registry.wasm_sha256 = f.expected;
-  const r = run(f.lock, ["--rebuild"], { ...f.env, FAKE_OLD: "1" });
+  const r = run(f.lock, ["--rebuild"], fakeFlags(f, "FAKE_OLD"));
   assert.equal(r.code, 1, r.out);
   assert.match(r.out, /older than this build/);
 });
+
+// qa r4, --rebuild mode: inherited cargo flags are dropped; cargo config above the checkout is refused.
+test("--rebuild drops inherited RUSTFLAGS / RUSTC_WRAPPER / CARGO_* (same clean hash)", () => {
+  const f = fixture();
+  f.lock.contracts.custody_registry.wasm_sha256 = f.expected;
+  const r = run(f.lock, ["--rebuild"], { ...f.env, RUSTFLAGS: "-C opt-level=0", RUSTC_WRAPPER: "/x", CARGO_ENCODED_RUSTFLAGS: "-Cx", CARGO_PROFILE_RELEASE_OPT_LEVEL: "1", CARGO_BUILD_RUSTFLAGS: "-Cy", CARGO_TARGET_WASM32V1_NONE_RUSTFLAGS: "-Cz" });
+  assert.equal(r.code, 0, r.out);
+  const forged = clone(f.lock);
+  forged.contracts.custody_registry.wasm_sha256 = sha(" contract build --locked --no-default-features|RUSTFLAGS=-C opt-level=0");
+  assert.equal(run(forged, ["--rebuild"], { ...f.env, RUSTFLAGS: "-C opt-level=0" }).code, 1);
+});
+
+test("--rebuild refuses cargo config above the checkout or in CARGO_HOME", () => {
+  for (const where of ["ancestor", "CARGO_HOME"]) {
+    const f = fixture();
+    f.lock.contracts.custody_registry.wasm_sha256 = f.expected;
+    const env = { ...f.env };
+    if (where === "ancestor") { fs.mkdirSync(path.join(f.root, ".cargo")); fs.writeFileSync(path.join(f.root, ".cargo", "config.toml"), "evil"); }
+    else { const h = path.join(f.root, "ch"); fs.mkdirSync(h); fs.writeFileSync(path.join(h, "config"), "evil"); env.CARGO_HOME = h; }
+    const r = run(f.lock, ["--rebuild"], env);
+    assert.equal(r.code, 1, `${where}: ${r.out}`);
+    assert.match(r.out, /cargo config outside the pinned source/);
+  }
+});
+

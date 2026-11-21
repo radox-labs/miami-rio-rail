@@ -53,7 +53,11 @@ function fixture() {
 if [ "$1" = "--version" ]; then echo "stellar 28.1.0 (fake)"; exit 0; fi
 out=""; prev=""; args=""
 for a in "$@"; do [ "$prev" = "--out-dir" ] && out="$a"; [ "$a" = "--out-dir" ] || [ "$prev" = "--out-dir" ] || args="$args $a"; prev="$a"; done
-printf '%s|%s' "$(basename "$PWD")" "$args" > "$out/$(basename "$PWD").wasm"
+pol=""
+for v in RUSTFLAGS CARGO_ENCODED_RUSTFLAGS RUSTC_WRAPPER RUSTC_WORKSPACE_WRAPPER CARGO_BUILD_RUSTFLAGS CARGO_PROFILE_RELEASE_OPT_LEVEL CARGO_TARGET_WASM32V1_NONE_RUSTFLAGS; do eval "x=\\\${$v:-}"; [ -n "$x" ] && pol="$pol|$v=$x"; done
+d="$PWD"; while :; do for c in "$d/.cargo/config" "$d/.cargo/config.toml"; do [ -f "$c" ] && pol="$pol|cfg:$(cat "$c")"; done; [ "$d" = "/" ] && break; d=$(dirname "$d"); done
+ch="\${CARGO_HOME:-$HOME/.cargo}"; for c in "$ch/config" "$ch/config.toml"; do [ -f "$c" ] && pol="$pol|home:$(cat "$c")"; done
+printf '%s|%s%s' "$(basename "$PWD")" "$args" "$pol" > "$out/$(basename "$PWD").wasm"
 `);
   fs.writeFileSync(path.join(bin, "rustc"), `#!/bin/sh\necho "rustc $RUSTUP_TOOLCHAIN (fake)"\n`);
   fs.chmodSync(path.join(bin, "stellar"), 0o755);
@@ -194,3 +198,70 @@ for (const script of STELLAR_USERS.filter((n) => !MAINNET_SCRIPTS.includes(n))) 
     }
   });
 }
+
+// qa r4: the cargo build environment. The fake builder, like cargo, folds inherited flags and any
+// .cargo/config(.toml) above the crate or in CARGO_HOME into the bytes. Each lock below claims the
+// hash of such a polluted build; the gate must never produce it.
+const CLEAN = fakeWasm("custody_registry");
+const POLLUTED = {
+  "RUSTFLAGS inherited": { env: { RUSTFLAGS: "-C opt-level=0" }, tail: "|RUSTFLAGS=-C opt-level=0" },
+  "RUSTC_WRAPPER inherited": { env: { RUSTC_WRAPPER: "/usr/bin/evil" }, tail: "|RUSTC_WRAPPER=/usr/bin/evil" },
+  "CARGO_ENCODED_RUSTFLAGS inherited": { env: { CARGO_ENCODED_RUSTFLAGS: "-Cdebuginfo=2" }, tail: "|CARGO_ENCODED_RUSTFLAGS=-Cdebuginfo=2" },
+  "CARGO_PROFILE_* inherited": { env: { CARGO_PROFILE_RELEASE_OPT_LEVEL: "1" }, tail: "|CARGO_PROFILE_RELEASE_OPT_LEVEL=1" },
+  "CARGO_TARGET_* inherited": { env: { CARGO_TARGET_WASM32V1_NONE_RUSTFLAGS: "-Cx" }, tail: "|CARGO_TARGET_WASM32V1_NONE_RUSTFLAGS=-Cx" },
+  "TMPDIR with .cargo/config.toml in its parent": {
+    setup: (f) => { const t = path.join(f.root, "shared"); fs.mkdirSync(path.join(t, ".cargo"), { recursive: true }); fs.writeFileSync(path.join(t, ".cargo", "config.toml"), "evil"); fs.mkdirSync(path.join(t, "tmp")); return { TMPDIR: path.join(t, "tmp") }; },
+    tail: "|cfg:evil",
+  },
+};
+for (const [label, p] of Object.entries(POLLUTED)) {
+  test(`mainnet gate: ${label} never changes the build`, () => {
+    const f = fixture();
+    const env = { ...DEPLOY_ENV, ...(p.env ?? {}), ...(p.setup ? p.setup(f) : {}) };
+    const forged = JSON.parse(JSON.stringify(REAL));
+    forged.contracts.custody_registry.wasm_sha256 = sha(CLEAN + p.tail);
+    const r = runScript(f, "mainnet-deploy.mjs", forged, env);
+    assert.notEqual(r.code, 0);
+    assert.match(r.out, /does not match the lock .*nothing sent/, `${label}: forged hash accepted\n${r.out}`);
+    assert.deepEqual(r.connects, []);
+    // The clean hash still passes with the same environment: the flags were dropped, not obeyed.
+    const ok = runScript(f, "mainnet-deploy.mjs", REAL, env);
+    assert.match(ok.out, /real mainnet: set CONFIRM_MAINNET=send/, `${label}:\n${ok.out}`);
+  });
+}
+
+for (const [label, setup] of Object.entries({
+  "config in CARGO_HOME": (f) => { const h = path.join(f.root, "ch"); fs.mkdirSync(h); fs.writeFileSync(path.join(h, "config.toml"), "evil"); return { CARGO_HOME: h }; },
+  "config in the default CARGO_HOME (~/.cargo)": (f) => { fs.mkdirSync(path.join(f.root, ".cargo")); fs.writeFileSync(path.join(f.root, ".cargo", "config"), "evil"); return {}; },
+  "config in an ancestor of the gate dir": (f) => { fs.mkdirSync(path.join(f.root, ".cache", ".cargo"), { recursive: true }); fs.writeFileSync(path.join(f.root, ".cache", ".cargo", "config.toml"), "evil"); return {}; },
+})) {
+  test(`mainnet gate refuses ${label}, forged or clean lock`, () => {
+    const f = fixture();
+    const env = { ...DEPLOY_ENV, ...setup(f) };
+    const forged = JSON.parse(JSON.stringify(REAL));
+    forged.contracts.custody_registry.wasm_sha256 = sha(CLEAN + (label.includes("ancestor") ? "|cfg:evil" : "|home:evil"));
+    for (const lock of [forged, REAL]) {
+      const r = runScript(f, "mainnet-deploy.mjs", lock, env);
+      assert.notEqual(r.code, 0);
+      assert.match(r.out, /cargo config outside the pinned source/, `${label}:\n${r.out}`);
+      assert.deepEqual(r.connects, []);
+    }
+  });
+}
+
+test("mainnet gate builds under ~/.cache/radox-rail-gate (0700), never TMPDIR", () => {
+  const f = fixture();
+  const gate = path.join(f.root, ".cache", "radox-rail-gate");
+  fs.mkdirSync(gate, { recursive: true, mode: 0o777 });
+  fs.chmodSync(gate, 0o777);
+  const r = runScript(f, "mainnet-deploy.mjs", REAL, { ...DEPLOY_ENV, TMPDIR: path.join(f.root, "nope") });
+  assert.match(r.out, /real mainnet: set CONFIRM_MAINNET=send/, r.out);
+  assert.equal(fs.statSync(gate).mode & 0o777, 0o700);
+  assert.deepEqual(fs.readdirSync(gate), [], "run dir left behind");
+  // A symlinked gate dir is refused.
+  const g2 = fixture();
+  fs.mkdirSync(path.join(g2.root, ".cache"), { recursive: true });
+  fs.symlinkSync(os.tmpdir(), path.join(g2.root, ".cache", "radox-rail-gate"));
+  const r2 = runScript(g2, "mainnet-deploy.mjs", REAL, DEPLOY_ENV);
+  assert.match(r2.out, /must be a directory owned by you with mode 0700/, r2.out);
+});
